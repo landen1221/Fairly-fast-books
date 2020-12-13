@@ -5,7 +5,13 @@ Base
 */
 
 body {
-  background: #ffffff;
+  background: gray;
+  background: url(Money.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+ 
 }
 
 .main {
@@ -269,4 +275,15 @@ Errors
 .alert-danger a {
   color: #a94442;
   font-weight: bold;
+}
+
+
+.center {
+  margin: auto;
+  width: 75%;
+  padding: 10px;
+}
+
+#opaque {
+  opacity: 0.75;
 }

@@ -1,31 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Plaid Quickstart Example</title>
-    <link rel="stylesheet" href="https://threads.plaid.com/threads.css" />
+{% extends 'base.html' %}
+{% block title %} Home Page {% endblock %}
 
-    <link rel="stylesheet" type="text/css" href="static/style.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-
-  <body>
+{% block content %}
     <main class="main">
       <div class="grid">
+        <!-- TODO: import page -->
         <div class="grid__column grid__column--is-twelve-columns">
-          <div id="banner" class="everpresent-content">
-            <h1 class="everpresent-content__heading">Plaid Quickstart</h1>
-            <p id="intro" class="everpresent-content__subheading">
-              An example application that outlines an end-to-end integration
-              with Plaid
-            </p>
             <p id="steps" class="everpresent-content__subheading">
-              Success! You just created an Item by linking your account.
+              <b>Success! You just created an Item by linking your account.</b>
             </p>
           </div>
-          <!-- TODO: -->
+
+          
           <div id="container" class="initial-view">
-            <p class="initial-view__description">
+            <br><br>
+            <div class="row justify-content-md-center m-4">
+              <div class="card" style="width: 45rem; background-color: azure;">
+                <h2 class="join-message">Import Transactions to Get Started!</h2>
+                
+                <button id="link-btn" class="button button--is-primary" disabled>
+                  Import
+                </button>
+              
+                </div>
+
+            </div>
+            
+            <!-- <p class="initial-view__description">
               Click the button below to open a list of Institutions. After you
               select one, you’ll be guided through an authentication process. If
               using the default Sandbox environment, use username
@@ -36,8 +37,8 @@
             </p>
 
             <button id="link-btn" class="button button--is-primary" disabled>
-              Connect with Plaid
-            </button>
+              Import
+            </button> -->
 
             <div class="loading-indicator"></div>
           </div>
@@ -218,7 +219,7 @@
               </div>
 
               <!-- Holdings -->
-              <div class="item-data-row">
+              <!-- <div class="item-data-row">
                 <div class="item-data-row__left">
                   <div class="item-data-row__request-type">post</div>
                 </div>
@@ -246,10 +247,10 @@
                     <tbody id="get-holdings-data"></tbody>
                   </table>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Investment Transactions -->
-              <div class="item-data-row">
+              <!-- <div class="item-data-row">
                 <div class="item-data-row__left">
                   <div class="item-data-row__request-type">post</div>
                 </div>
@@ -280,7 +281,7 @@
                 </div>
               </div>
 
-              <!-- UK Payment Initiation (hidden unless 'payment_initiation' is included in the product list) -->
+              UK Payment Initiation (hidden unless 'payment_initiation' is included in the product list)
               <div
                 class="payment_initiation item-data-row"
                 style="display: none;"
@@ -314,7 +315,7 @@
                   </table>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <div class="box">
               <h3 class="box__heading">Item management</h3>
@@ -383,7 +384,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script src="static/app.js"></script>
     <script>
+      // TODO:
+      // START OF JAVASCRIPT //
       function render_page($, page_info) {
         // Handles redirect from the oauth response page for the oauth flow.
         if (
@@ -740,53 +744,53 @@
           });
         });
 
-        $("#get-holdings-btn").on("click", function (e) {
-          $.get("/api/holdings", function (data) {
-            $("#get-holdings-data").slideUp(function () {
-              if (data.error != null) {
-                displayError(this, data.error);
-                return;
-              }
-              // Organize by Account
-              var holdingsData = data.holdings.holdings.sort(function (a, b) {
-                if (a.account_id > b.account_id) return 1;
-                return -1;
-              });
-              var html =
-                '<tr class="response-row response-row--is-holdings"></tr><td><strong>Account Mask</strong></td><td><strong>Name</strong></td><td><strong>Quantity</strong></td><td><strong>Close Price</strong></td><td><strong>Value</strong></td><tr class="response-row response-row--is-holding">';
-              holdingsData.forEach(function (h, idx) {
-                const account = data.holdings.accounts.filter(
-                  a => a.account_id === h.account_id
-                )[0];
-                const security = data.holdings.securities.filter(
-                  s => s.security_id === h.security_id
-                )[0];
-                if (account == null) {
-                  displayError(this, {
-                    code: 500,
-                    type: "Internal",
-                    display_message: "Holding lacks a account"
-                  });
-                }
-                if (security == null) {
-                  displayError(this, {
-                    code: 500,
-                    type: "Internal",
-                    display_message: "Holding lacks a security"
-                  });
-                }
-                html += "<tr>";
-                html += "<td>" + account.mask + "</td>";
-                html += "<td>" + security.name + "</td>";
-                html += "<td>" + h.quantity + "</td>";
-                html += "<td>$" + security.close_price + "</td>";
-                html += "<td>$" + h.quantity * security.close_price + "</td>";
-                html += "</tr>";
-              });
-              $(this).html(html).slideDown();
-            });
-          });
-        });
+        // $("#get-holdings-btn").on("click", function (e) {
+        //   $.get("/api/holdings", function (data) {
+        //     $("#get-holdings-data").slideUp(function () {
+        //       if (data.error != null) {
+        //         displayError(this, data.error);
+        //         return;
+        //       }
+        //       // Organize by Account
+        //       var holdingsData = data.holdings.holdings.sort(function (a, b) {
+        //         if (a.account_id > b.account_id) return 1;
+        //         return -1;
+        //       });
+        //       var html =
+        //         '<tr class="response-row response-row--is-holdings"></tr><td><strong>Account Mask</strong></td><td><strong>Name</strong></td><td><strong>Quantity</strong></td><td><strong>Close Price</strong></td><td><strong>Value</strong></td><tr class="response-row response-row--is-holding">';
+        //       holdingsData.forEach(function (h, idx) {
+        //         const account = data.holdings.accounts.filter(
+        //           a => a.account_id === h.account_id
+        //         )[0];
+        //         const security = data.holdings.securities.filter(
+        //           s => s.security_id === h.security_id
+        //         )[0];
+        //         if (account == null) {
+        //           displayError(this, {
+        //             code: 500,
+        //             type: "Internal",
+        //             display_message: "Holding lacks a account"
+        //           });
+        //         }
+        //         if (security == null) {
+        //           displayError(this, {
+        //             code: 500,
+        //             type: "Internal",
+        //             display_message: "Holding lacks a security"
+        //           });
+        //         }
+        //         html += "<tr>";
+        //         html += "<td>" + account.mask + "</td>";
+        //         html += "<td>" + security.name + "</td>";
+        //         html += "<td>" + h.quantity + "</td>";
+        //         html += "<td>$" + security.close_price + "</td>";
+        //         html += "<td>$" + h.quantity * security.close_price + "</td>";
+        //         html += "</tr>";
+        //       });
+        //       $(this).html(html).slideDown();
+        //     });
+        //   });
+        // });
 
         $("#get-investment-transactions-btn").on("click", function (e) {
           $.get("/api/investment_transactions", function (data) {
@@ -909,3 +913,4 @@
     </script>
   </body>
 </html>
+{% endblock %}

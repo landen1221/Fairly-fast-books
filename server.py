@@ -8,18 +8,22 @@ import datetime
 import plaid
 import json
 import time
-from flask import Flask, request, jsonify, render_template
-from models import db, connect_db, Transactions
+from flask import Flask, request, jsonify, render_template, session, g, redirect
+from models import db, connect_db, Transactions, User_Transaction, User, Category, Transaction_category
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
+from forms import SignupUser, LoginForm, EditUserForm
 # from sqlalchemy import create_engine
 # from sqlalchemy.ext.declarative import declarative_base
+CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
+app.config['SECRET_KEY'] = "plaidSandbox"
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
-PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
+PLAID_SECRET = os.getenv('PLAID_SECRET', '')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -58,7 +62,66 @@ client = plaid.Client(client_id=PLAID_CLIENT_ID,
                       environment=PLAID_ENV,
                       api_version='2019-05-29')
 
+
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
+
+def do_login(user):
+    """Log in user."""
+
+    session[CURR_USER_KEY] = user.username
+
+
 @app.route('/')
+def join_page():
+  return render_template('home.html')
+
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    """Handle user signup. """
+
+    form = SignupUser()
+  
+    if form.validate_on_submit():
+        try:
+            user = User.signup(
+                username=form.username.data,
+                password=form.password.data,
+                email=form.email.data,
+            )
+            db.session.add(user)
+            db.session.commit()
+            
+            username = form.username.data
+            user_id = User.query.filter_by(username=username).first()
+            session['user-id'] = user_id.username
+        
+        
+        except IntegrityError:
+            flash("Username already taken", 'danger')
+            return render_template('signup.html', form=form)
+
+        do_login(user)
+        return redirect("/home")
+
+    else:
+        return render_template('signup.html', form=form)
+
+
+@app.route('/login')
+def login_page():
+  return redirect('/signup')
+
+
+@app.route('/home')
 def index():
   return render_template(
     'index.html',
@@ -75,6 +138,7 @@ def oauth_response():
 # We store the access_token in memory - in production, store it in a secure
 # persistent data store.
 access_token = None
+
 # The payment_id is only relevant for the UK Payment Initiation product.
 # We store the payment_id in memory - in production, store it in a secure
 # persistent data store.
@@ -198,6 +262,7 @@ def get_transactions():
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
+
     # TODO:
     transactions = transactions_response['transactions']
 
@@ -212,7 +277,13 @@ def get_transactions():
       db.session.add(t)
       db.session.commit()
 
-    
+      u_t = User_Transaction (
+        user_id = session['user-id'],
+        transaction_id = tran['transaction_id']
+      )
+      
+      db.session.add(u_t)
+      db.session.commit()
 
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))

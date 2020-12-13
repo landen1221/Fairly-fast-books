@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.3/lumen/bootstrap.css">
+    <link rel="stylesheet" href="https://threads.plaid.com/threads.css" />
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/671be8ffb0.js" crossorigin="anonymous"></script>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-dark bg-dark">
+        <ul class="navbar-nav">
+          <li><a class="nav-link" href="/"><i class="fas fa-hand-holding-usd" style="font-size: 1.5em; color: lightgray;"></i></a></li>
+          <li class="nav-item"><a class="nav-link" href="/login">&emsp;Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="/signup">Signup</a></li>
+        </ul>
+        
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+    
+
+</body>
+</html>
