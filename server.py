@@ -22,8 +22,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
 app.config['SECRET_KEY'] = "plaidSandbox"
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
-PLAID_SECRET = os.getenv('PLAID_SECRET', '')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
+PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -258,7 +258,7 @@ def get_auth():
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
   # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-120))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
@@ -287,6 +287,7 @@ def get_transactions():
 
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
+
   pretty_print_response(transactions_response)
   return jsonify(transactions_response)
 
@@ -369,39 +370,39 @@ def get_assets():
 
 # Retrieve investment holdings data for an Item
 # https://plaid.com/docs/#investments
-@app.route('/api/holdings', methods=['GET'])
-def get_holdings():
-  try:
-    holdings_response = client.Holdings.get(access_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(holdings_response)
-  return jsonify({'error': None, 'holdings': holdings_response})
+# @app.route('/api/holdings', methods=['GET'])
+# def get_holdings():
+#   try:
+#     holdings_response = client.Holdings.get(access_token)
+#   except plaid.errors.PlaidError as e:
+#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+#   pretty_print_response(holdings_response)
+#   return jsonify({'error': None, 'holdings': holdings_response})
 
 # Retrieve Investment Transactions for an Item
 # https://plaid.com/docs/#investments
-@app.route('/api/investment_transactions', methods=['GET'])
-def get_investment_transactions():
-  # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
-  end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
-  try:
-    investment_transactions_response = client.InvestmentTransactions.get(access_token,
-                                                                         start_date,
-                                                                         end_date)
-  except plaid.errors.PlaidError as e:
-    return jsonify(format_error(e))
-  pretty_print_response(investment_transactions_response)
-  return jsonify({'error': None, 'investment_transactions': investment_transactions_response})
+# @app.route('/api/investment_transactions', methods=['GET'])
+# def get_investment_transactions():
+#   # Pull transactions for the last 30 days
+#   start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+#   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+#   try:
+#     investment_transactions_response = client.InvestmentTransactions.get(access_token,
+#                                                                          start_date,
+#                                                                          end_date)
+#   except plaid.errors.PlaidError as e:
+#     return jsonify(format_error(e))
+#   pretty_print_response(investment_transactions_response)
+#   return jsonify({'error': None, 'investment_transactions': investment_transactions_response})
 
 # This functionality is only relevant for the UK Payment Initiation product.
 # Retrieve Payment for a specified Payment ID
-@app.route('/api/payment', methods=['GET'])
-def payment():
-  global payment_id
-  payment_get_response = client.PaymentInitiation.get_payment(payment_id)
-  pretty_print_response(payment_get_response)
-  return jsonify({'error': None, 'payment': payment_get_response})
+# @app.route('/api/payment', methods=['GET'])
+# def payment():
+#   global payment_id
+#   payment_get_response = client.PaymentInitiation.get_payment(payment_id)
+#   pretty_print_response(payment_get_response)
+#   return jsonify({'error': None, 'payment': payment_get_response})
 
 # Retrieve high-level information about an Item
 # https://plaid.com/docs/#retrieve-item
