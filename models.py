@@ -21,17 +21,7 @@ class Transactions(db.Model):
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Text, nullable=False)
 
-
-
-class User_Transaction(db.Model):
-    """User transactions model"""
-
-    __tablename__ = 'user_transactions'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Text, db.ForeignKey('users.username'), nullable=False)
-    transaction_id = db.Column(db.Text, db.ForeignKey('transactions.transaction_id'), nullable=False)
-
+    users = db.relationship("User", secondary="user_transactions")
 
 class Transaction_category(db.Model):
     """Transaction_category Model"""
@@ -59,6 +49,9 @@ class User(db.Model):
     username = db.Column(db.String(25), primary_key=True, unique=True, nullable=False)
     email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
+
+    # TODO: Finish this, and impliment it on trans-details.html 
+    transactions = db.relationship("Transactions", secondary="user_transactions")
 
     @classmethod
     def signup(cls, username, email, password):
@@ -88,7 +81,17 @@ class User(db.Model):
 
         return False
      
+class User_Transaction(db.Model):
+    """User transactions model"""
 
+    __tablename__ = 'user_transactions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Text, db.ForeignKey('users.username'), nullable=False)
+    transaction_id = db.Column(db.Text, db.ForeignKey('transactions.transaction_id'), nullable=False)
+
+    user = db.relationship(User, backref=db.backref("user_transactions", cascade="all, delete-orphan"))
+    transaction = db.relationship(Transactions, backref=db.backref("user_transactions", cascade="all, delete-orphan"))
     # def serialize(self):
     #     return {
     #         'id': self.id,

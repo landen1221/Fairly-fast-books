@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-8">
+        <h2 class="mt-3 mb-3">Uncategorized Transactions</h2>
+    </div>
+    <div class="col-4 text-right text-bottom  pt-4">
+        <a href="" class="text-primary  mr-4"><u>+ custom category</u></a>
+    </div>
+</div>
+
+<table class="table table-striped bg-white">
+    <thead>
+        <tr>
+          <th scope="col" class="pl-3"><strong>Description</strong></th>
+          <th scope="col" class="text-center"><strong>Amount</strong></th>
+          <th scope="col" class="text-center"><strong>Date</strong></th>
+          <th scope="col" class="text-center"><strong>Category</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for trans in user.transactions %}
+            <tr>
+                <td class="pl-3 p-2">{{ trans.name }}</td> 
+                <td class="text-center p-2">${{ dollar_formatted[loop.index]}}</td>
+                <td class="text-center p-2">{{ trans.date[5:] }}-{{ trans.date[:4]}}</td> 
+                <td class="text-center p-2">
+                    <form>
+                        <select id = "myList" style='font-size: 14px;'>
+                            <option value = "null" disable selected >Category</option>
+                            {% for category in categories %}
+                                <option value ="{{category.id}}">{{category.name}}</option>
+                            {% endfor %}
+                        </select>    
+                     </form>
+                </td>
+            </tr>
+            
+        {% endfor %}
+    </tbody>
+
+</table>
+
+
+{% endblock %}

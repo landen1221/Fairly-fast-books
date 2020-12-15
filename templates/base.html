@@ -11,15 +11,42 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-<div class="container">
-    <nav class="navbar navbar-dark bg-dark">
-        <ul class="navbar-nav">
-          <li><a class="nav-link" href="/"><i class="fas fa-hand-holding-usd" style="font-size: 1.5em; color: lightgray;"></i></a></li>
-          <li class="nav-item"><a class="nav-link" href="/login">&emsp;Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="/signup">Signup</a></li>
-        </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark pt-3">
+    <div class="container">
+        <div class=" navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+
+            <ul class="navbar-nav mr-auto m-0 p-0">
+                <li class="nav-item m-0 p-0">
+                    {% if not g.user %}
+                    <a class="nav-link ml-2" href="/"> <i class="fas fa-hand-holding-usd pr-2" style="font-size: 1.5em; color: lightgray;"></i></a>
+                    {% else %}
+                    <a class="nav-link ml-2" href="/home"> <i class="fas fa-hand-holding-usd pr-2" style="font-size: 1.5em; color: lightgray;"></i></a>
+                    {% endif %}
+                
+                </li>
+            </ul>
+        </div>
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+            <ul class="navbar-nav ml-auto m-0 p-0">
+                {% if not g.user %}
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/login">Login</a></li>
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/signup">&emsp;Signup</a></li>
+                
+                {% else %}
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/expense-report">My Reports</a></li>
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/Settings">&emsp;Settings</a></li>
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/logout">&emsp;Logout</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
         
     </nav>
+
+<div class="container">
+    {% for category, message in get_flashed_messages (with_categories=True) %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
 
     {% block content %}
     {% endblock %}

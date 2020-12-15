@@ -314,13 +314,13 @@ $("#get-transactions-btn").on("click", function (e) {
 
     $("#get-transactions-data").slideUp(function () {
         var html =
-        "<tr><td class='ml-1'><strong>Name</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><td><strong>Category</strong></td></tr>";
+        "<tr><td class='ml-1'><strong>Description</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><td><strong>Category</strong></td></tr>";
         data.transactions.forEach(function (txn, idx) {
             html += "<tr>";
             html += "<td class='pl-2'>" + txn.name + "</td>";
             html += "<td>$" + txn.amount + "</td>";
             html += "<td>" + txn.date + "</td>";
-            html += "<td>" + txn.transaction_id + "</td>";  
+            html += "<td>" + 'Groceries' + "</td>";  
             html += "</tr>";
         });
 

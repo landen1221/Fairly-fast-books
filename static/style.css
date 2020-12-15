@@ -15,10 +15,10 @@ body {
 }
 
 .main {
-  max-width: 960px;
+  max-width: 1200px;
   margin-right: auto;
   margin-left: auto;
-  padding: 80px 40px;
+  padding: 20px 25px;
 }
 
 
@@ -279,11 +279,19 @@ Errors
 
 
 .center {
-  margin: auto;
-  width: 75%;
-  padding: 10px;
+  width: 50em;
+	height: 150px;
+	
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+  	
+	margin: auto;
 }
 
 #opaque {
   opacity: 0.75;
 }
+

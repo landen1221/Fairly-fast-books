@@ -8,7 +8,7 @@ import datetime
 import plaid
 import json
 import time
-from flask import Flask, request, jsonify, render_template, session, g, redirect
+from flask import Flask, request, jsonify, render_template, session, g, redirect, flash
 from models import db, connect_db, Transactions, User_Transaction, User, Category, Transaction_category
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -76,9 +76,15 @@ def add_user_to_g():
 
 def do_login(user):
     """Log in user."""
-
     session[CURR_USER_KEY] = user.username
 
+
+@app.route('/logout')
+def logout_user():
+  """Logout user"""
+  if CURR_USER_KEY in session:
+    del session[CURR_USER_KEY]
+  return redirect('/')
 
 @app.route('/')
 def join_page():
@@ -110,22 +116,43 @@ def signup():
             return render_template('signup.html', form=form)
 
         do_login(user)
-        return redirect("/home")
+        return redirect("/new-user")
 
     else:
         return render_template('signup.html', form=form)
 
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login_page():
-  return redirect('/signup')
+  form = LoginForm()
+
+  if form.validate_on_submit():
+        user = User.authenticate(form.username.data, form.password.data)
+        
+        if user:
+            do_login(user)
+            flash(f"Welcome back, {user.username}!", "success")
+            return redirect("/home")
+
+        flash("Invalid credentials.", 'danger')
+
+
+  return render_template('login.html', form=form)
 
 
 @app.route('/home')
+def signed_in_user():
+  user = User.query.get(session[CURR_USER_KEY])
+  categories = Category.query.all()
+  
+  dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
+
+  return render_template('trans-details.html', user=user, categories=categories, dollar_formatted=dollar_formatted)
+
+
+@app.route('/new-user')
 def index():
-  return render_template(
-    'index.html',
-  )
+  return render_template('index.html')
 
 # This is an endpoint defined for the OAuth flow to redirect to.
 @app.route('/oauth-response.html')
