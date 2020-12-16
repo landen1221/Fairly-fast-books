@@ -9,10 +9,10 @@ import plaid
 import json
 import time
 from flask import Flask, request, jsonify, render_template, session, g, redirect, flash
-from models import db, connect_db, Transactions, User_Transaction, User, Category, Transaction_category
+from models import db, connect_db, Transactions, UserTransaction, User, Category
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from forms import SignupUser, LoginForm, EditUserForm
+from forms import SignupUser, LoginForm, EditUserForm, NewCategory
 # from sqlalchemy import create_engine
 # from sqlalchemy.ext.declarative import declarative_base
 CURR_USER_KEY = "curr_user"
@@ -139,15 +139,34 @@ def login_page():
 
   return render_template('login.html', form=form)
 
-
-@app.route('/home')
+# TODO: Render transaction table
+@app.route('/home', methods=["GET", "POST"])
 def signed_in_user():
-  user = User.query.get(session[CURR_USER_KEY])
-  categories = Category.query.all()
-  
-  dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
+  form = NewCategory()
 
-  return render_template('trans-details.html', user=user, categories=categories, dollar_formatted=dollar_formatted)
+  if form.validate_on_submit():
+    print(form.name.data)
+    try:
+      data = form.name.data
+      new_cat = Category(name=data.title())
+      db.session.add(new_cat)
+      db.session.commit()
+
+    except IntegrityError:
+      flash("Category already exists", 'danger')
+      return redirect('/home')
+    
+    return redirect('/home')
+
+  else:
+    user = User.query.get(session[CURR_USER_KEY])
+    categories = Category.query.all()
+    
+    dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
+    length = len(dollar_formatted)
+
+    return render_template('trans-details.html', user=user, categories=categories, dollar_formatted=dollar_formatted, length=length, form=form)
+
 
 
 @app.route('/new-user')
@@ -304,7 +323,7 @@ def get_transactions():
       db.session.add(t)
       db.session.commit()
 
-      u_t = User_Transaction (
+      u_t = UserTransaction (
         user_id = session['user-id'],
         transaction_id = tran['transaction_id']
       )
@@ -314,9 +333,18 @@ def get_transactions():
 
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
-
+  
   pretty_print_response(transactions_response)
   return jsonify(transactions_response)
+
+#  TODO: send json back to js file
+@app.route('/api/transaction-ids')
+def get_transaction_ids():
+  user = User.query.get(session[CURR_USER_KEY])
+  transactions = user.transactions
+  trans_list = [i.transaction_id for i in transactions]
+  
+  return jsonify(trans_list)
 
 # Retrieve Identity data for an Item
 # https://plaid.com/docs/#identity

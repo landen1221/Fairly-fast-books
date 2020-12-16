@@ -310,28 +310,31 @@ $("#get-transactions-btn").on("click", function (e) {
         });
         return;
     }
-
-
-    $("#get-transactions-data").slideUp(function () {
-        var html =
-        "<tr><td class='ml-1'><strong>Description</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><td><strong>Category</strong></td></tr>";
-        data.transactions.forEach(function (txn, idx) {
-            html += "<tr>";
-            html += "<td class='pl-2'>" + txn.name + "</td>";
-            html += "<td>$" + txn.amount + "</td>";
-            html += "<td>" + txn.date + "</td>";
-            html += "<td>" + 'Groceries' + "</td>";  
-            html += "</tr>";
-        });
-
-        $(this).slideUp(function () {
-        $(this).html(html).slideDown();
-        });
-    });
     
-    let card = document.getElementsByid("import-card");
-    card.parentNode.removeChild(card);
-    card.style.display = 'none';
+    //  TODO: 
+    window.location.href = "/home"
+
+    // $("#get-transactions-data").slideUp(function () {
+    //     var html =
+    //     "<tr><td class='ml-1'><strong>Description</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><td><strong>Category</strong></td></tr>";
+    //     data.transactions.forEach(function (txn, idx) {
+    //         html += "<tr>";
+    //         html += "<td class='pl-2'>" + txn.name + "</td>";
+    //         html += "<td>$" + txn.amount + "</td>";
+    //         html += "<td>" + txn.date + "</td>";
+    //         html += "<td>" + 'Groceries' + "</td>";  
+    //         html += "</tr>";
+    //     });
+
+    //     $(this).slideUp(function () {
+    //     $(this).html(html).slideDown();
+    //     });
+    // });
+    
+    // let card = document.getElementsByid("import-card");
+    // card.parentNode.removeChild(card);
+    
+    
 
     });
 });
@@ -435,74 +438,75 @@ $("#get-investment-transactions-btn").on("click", function (e) {
     });
 });
 
-$("#get-assets-btn").on("click", function (e) {
-    $.get("/api/assets", function (data) {
-    $("#get-assets-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var reportData = data.json;
-        var html = `
-    <tr>
-    <td><strong>Account</strong></td>
-    <td><strong>Balance</strong></td>
-    <td><strong># Transactions</strong></td>
-    <td><strong># Days Available</strong></td>
-    </tr>`;
-        reportData.items.forEach(function (item, itemIdx) {
-        item.accounts.forEach(function (account, accountIdx) {
-            html += "<tr>";
-            html += "<td>" + account.name + "</td>";
-            html += "<td>$" + account.balances.current + "</td>";
-            html += "<td>" + account.transactions.length + "</td>";
-            html += "<td>" + account.days_available + "</td>";
-            html += "</tr>";
-        });
-        });
+// $("#get-assets-btn").on("click", function (e) {
+//     $.get("/api/assets", function (data) {
+//     $("#get-assets-data").slideUp(function () {
+//         if (data.error != null) {
+//         displayError(this, data.error);
+//         return;
+//         }
+//         var reportData = data.json;
+//         var html = `
+//     <tr>
+//     <td><strong>Account</strong></td>
+//     <td><strong>Balance</strong></td>
+//     <td><strong># Transactions</strong></td>
+//     <td><strong># Days Available</strong></td>
+//     </tr>`;
+//         reportData.items.forEach(function (item, itemIdx) {
+//         item.accounts.forEach(function (account, accountIdx) {
+//             html += "<tr>";
+//             html += "<td>" + account.name + "</td>";
+//             html += "<td>$" + account.balances.current + "</td>";
+//             html += "<td>" + account.transactions.length + "</td>";
+//             html += "<td>" + account.days_available + "</td>";
+//             html += "</tr>";
+//         });
+//         });
 
-        $("#download-assets-pdf-btn")
-        .attr("href", `data:application/pdf;base64,${data.pdf}`)
-        .attr("download", "Asset Report.pdf")
-        .show();
+//         $("#download-assets-pdf-btn")
+//         .attr("href", `data:application/pdf;base64,${data.pdf}`)
+//         .attr("download", "Asset Report.pdf")
+//         .show();
 
-        $(this).html(html).slideDown();
-    });
-    });
-});
+//         $(this).html(html).slideDown();
+//     });
+//     });
+// });
 
 // This functionality is only relevant for the UK Payment Initiation product.
-$("#get-payment-btn").on("click", function (e) {
-    $.get("/api/payment", function (data) {
-    $("#get-payment-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var paymentData = data.payment;
-        var html = "";
-        html +=
-        "<tr><td>Payment ID</td><td>" +
-        paymentData.payment_id +
-        "</td></tr>";
-        html +=
-        "<tr><td>Amount</td><td>" +
-        (paymentData.amount.currency + " " + paymentData.amount.value) +
-        "</td></tr>";
-        html +=
-        "<tr><td>Status</td><td>" + paymentData.status + "</td></tr>";
-        html +=
-        "<tr><td>Last Status Update</td><td>" +
-        paymentData.last_status_update +
-        "</td></tr>";
-        html +=
-        "<tr><td>Recipient ID</td><td>" +
-        paymentData.recipient_id +
-        "</td></tr>";
-        $(this).html(html).slideDown();
-    });
-    });
-});
+// $("#get-payment-btn").on("click", function (e) {
+//     $.get("/api/payment", function (data) {
+//     $("#get-payment-data").slideUp(function () {
+//         if (data.error != null) {
+//         displayError(this, data.error);
+//         return;
+//         }
+//         var paymentData = data.payment;
+//         var html = "";
+//         html +=
+//         "<tr><td>Payment ID</td><td>" +
+//         paymentData.payment_id +
+//         "</td></tr>";
+//         html +=
+//         "<tr><td>Amount</td><td>" +
+//         (paymentData.amount.currency + " " + paymentData.amount.value) +
+//         "</td></tr>";
+//         html +=
+//         "<tr><td>Status</td><td>" + paymentData.status + "</td></tr>";
+//         html +=
+//         "<tr><td>Last Status Update</td><td>" +
+//         paymentData.last_status_update +
+//         "</td></tr>";
+//         html +=
+//         "<tr><td>Recipient ID</td><td>" +
+//         paymentData.recipient_id +
+//         "</td></tr>";
+//         $(this).html(html).slideDown();
+//     });
+//     });
+// });
+
 }
 $.post("/api/info", {}, function (result) {
 render_page(jQuery, result);
@@ -530,3 +534,26 @@ error.display_message == null
 </div>`;
 $(element).html(html).slideDown();
 }
+
+
+const length = parseInt(document.getElementById("trans-count").innerText)
+console.log(length)
+
+// TODO: 
+$("#apply-categories").on("click", function(e) {
+    $.get("/api/transaction-ids", function (data) {
+        console.log(data)
+    });
+});
+
+
+
+updateCategories = function() {
+    for (let i =0; i< length; i++) {
+        document.forms[""].submit();
+    }
+    
+}
+
+// $("#get-transactions-btn").on("click", function (e) {
+//     $.get("/api/transactions", function (data) {

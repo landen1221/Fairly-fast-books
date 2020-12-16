@@ -22,3 +22,8 @@ class EditUserForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=6)])
+
+class NewCategory(FlaskForm):
+    """Form for adding category."""
+
+    name = StringField('Add custom category', validators=[DataRequired()])
