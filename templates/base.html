@@ -33,8 +33,8 @@
                 <li class="nav-item m-0 p-0"><a class="nav-link" href="/signup">&emsp;Signup</a></li>
                 
                 {% else %}
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/expense-report">My Reports</a></li>
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/Settings">&emsp;Settings</a></li>
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/home">My transactions</a></li>
+                <li class="nav-item m-0 p-0"><a class="nav-link" href="/expense-report">&emsp;My Reports</a></li>
                 <li class="nav-item m-0 p-0"><a class="nav-link" href="/logout">&emsp;Logout</a></li>
                 {% endif %}
             </ul>
@@ -54,6 +54,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 <script src="static/app.js"></script>
 

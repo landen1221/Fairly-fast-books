@@ -51,14 +51,17 @@
                 <td class="text-center p-2">${{ dollar_formatted[loop.index-1] }}</td>
                 <td class="text-center p-2">{{ trans.date[5:] }}-{{ trans.date[:4]}}</td> 
                 <td class="text-center p-2">
+
                     <form name="{{ trans.transaction_id }}">
-                        <select id = "myList" style='font-size: 14px;'>
-                            <option value = "null" disable selected >Category</option>
+
+                        <select id ="form-{{loop.index}}" data-transid="{{ trans.transaction_id }}" style='font-size: 14px;'>
+                            <option value = "null" disable selected >--</option>
                             {% for category in categories %}
-                                <option value ="{{category.id}}">{{category.name}}</option>
+                                <option value ="{{category.id}}" >{{category.name}}</option>
                             {% endfor %}
                         </select>    
-                     </form>
+                    </form>
+
                 </td>
             </tr>
             

@@ -537,23 +537,53 @@ $(element).html(html).slideDown();
 
 
 const length = parseInt(document.getElementById("trans-count").innerText)
-console.log(length)
 
 // TODO: 
 $("#apply-categories").on("click", function(e) {
-    $.get("/api/transaction-ids", function (data) {
-        console.log(data)
+    alert('button clicked')
+    const matchingIDs = {}
+
+    for (let i =1; i< length+1; i++) {
+        let tempData = document.getElementById(`form-${i}`)
+        if (tempData.value != 'null') {
+            matchingIDs[tempData.dataset.transid] = tempData.value
+        }
+    }
+
+    let resp = -1
+
+    $.ajax({
+       type: 'POST',
+       contentType: 'application/json',
+       data: JSON.stringify(matchingIDs),
+       dataType: 'json',
+       url: '/apply-categories',
+       success: function (e) {
+           console.log(e);
+        //    window.location = "/home";
+       },
+       error: function(error) {
+            console.log(error);
+       }
     });
+
+
+
+    // remove element from DOM
+    for (let i =1; i< length+1; i++) {
+        let tempData = document.getElementById(`form-${i}`)
+        if (tempData.value != 'null') {
+            tempData.parentElement.parentElement.parentElement.remove();
+            console.log('entered if statement')
+        }
+    }
+
+
+    console.log('done!')
+    
 });
 
 
-
-updateCategories = function() {
-    for (let i =0; i< length; i++) {
-        document.forms[""].submit();
-    }
-    
-}
 
 // $("#get-transactions-btn").on("click", function (e) {
 //     $.get("/api/transactions", function (data) {

@@ -13,6 +13,8 @@ from models import db, connect_db, Transactions, UserTransaction, User, Category
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from forms import SignupUser, LoginForm, EditUserForm, NewCategory
+# from flask_cors import CORS
+
 # from sqlalchemy import create_engine
 # from sqlalchemy.ext.declarative import declarative_base
 CURR_USER_KEY = "curr_user"
@@ -20,6 +22,7 @@ CURR_USER_KEY = "curr_user"
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
 app.config['SECRET_KEY'] = "plaidSandbox"
+# CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
@@ -160,12 +163,47 @@ def signed_in_user():
 
   else:
     user = User.query.get(session[CURR_USER_KEY])
-    categories = Category.query.all()
+    categories = Category.query.order_by(Category.name).all()
     
     dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
     length = len(dollar_formatted)
 
     return render_template('trans-details.html', user=user, categories=categories, dollar_formatted=dollar_formatted, length=length, form=form)
+
+# @app.route('/update-category/<transID>/<catID>', methods=['POST']) 
+# def update_category(transID, catID):
+#   trans = Transaction.query.get(transID)
+#   trans.category = catID
+#   db.session.commit
+#   # return redirect('/home')
+
+# @app.route('/settings', methods=['GET', 'POST'])
+# def settings():
+#   form = EditUserForm() 
+#   user = User.query.get(session[CURR_USER_KEY])
+
+#   if form.validate_on_submit():
+#     try:
+#       user.username = form.username.data
+#       user.email = form.email.data
+#       if form.password.data:
+#         user.password = form.password.data
+
+#       db.session.commit()
+
+#       return redirect('/home')
+    
+#     except IntegrityError:
+#       flash("Username already taken", 'danger')
+#       return render_template('/settings.html')
+
+#   else:
+#     form.username.data = user.username
+#     form.email.data = user.email
+#     form.password.data = user.password
+
+#     return render_template('settings.html', form=form)
+
 
 
 
@@ -304,7 +342,7 @@ def get_auth():
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
   # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-120))
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-180))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
@@ -383,45 +421,45 @@ def get_accounts():
 # Asset Report can contain up to 100 items, but for simplicity we're only
 # including one Item here.
 # https://plaid.com/docs/#assets
-@app.route('/api/assets', methods=['GET'])
-def get_assets():
-  try:
-    asset_report_create_response = client.AssetReport.create([access_token], 10)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(asset_report_create_response)
+# @app.route('/api/assets', methods=['GET'])
+# def get_assets():
+#   try:
+#     asset_report_create_response = client.AssetReport.create([access_token], 10)
+#   except plaid.errors.PlaidError as e:
+#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+#   pretty_print_response(asset_report_create_response)
 
-  asset_report_token = asset_report_create_response['asset_report_token']
+#   asset_report_token = asset_report_create_response['asset_report_token']
 
-  # Poll for the completion of the Asset Report.
-  num_retries_remaining = 20
-  asset_report_json = None
-  while num_retries_remaining > 0:
-    try:
-      asset_report_get_response = client.AssetReport.get(asset_report_token)
-      asset_report_json = asset_report_get_response['report']
-      break
-    except plaid.errors.PlaidError as e:
-      if e.code == 'PRODUCT_NOT_READY':
-        num_retries_remaining -= 1
-        time.sleep(1)
-        continue
-      return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+#   # Poll for the completion of the Asset Report.
+#   num_retries_remaining = 20
+#   asset_report_json = None
+#   while num_retries_remaining > 0:
+#     try:
+#       asset_report_get_response = client.AssetReport.get(asset_report_token)
+#       asset_report_json = asset_report_get_response['report']
+#       break
+#     except plaid.errors.PlaidError as e:
+#       if e.code == 'PRODUCT_NOT_READY':
+#         num_retries_remaining -= 1
+#         time.sleep(1)
+#         continue
+#       return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
 
-  if asset_report_json == None:
-    return jsonify({'error': {'display_message': 'Timed out when polling for Asset Report', 'error_code': '', 'error_type': '' } })
+#   if asset_report_json == None:
+#     return jsonify({'error': {'display_message': 'Timed out when polling for Asset Report', 'error_code': '', 'error_type': '' } })
 
-  asset_report_pdf = None
-  try:
-    asset_report_pdf = client.AssetReport.get_pdf(asset_report_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
+#   asset_report_pdf = None
+#   try:
+#     asset_report_pdf = client.AssetReport.get_pdf(asset_report_token)
+#   except plaid.errors.PlaidError as e:
+#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
 
-  return jsonify({
-    'error': None,
-    'json': asset_report_json,
-    'pdf': base64.b64encode(asset_report_pdf).decode('utf-8'),
-  })
+#   return jsonify({
+#     'error': None,
+#     'json': asset_report_json,
+#     'pdf': base64.b64encode(asset_report_pdf).decode('utf-8'),
+#   })
 
 # Retrieve investment holdings data for an Item
 # https://plaid.com/docs/#investments
@@ -470,6 +508,25 @@ def item():
   pretty_print_response(institution_response)
   return jsonify({'error': None, 'item': item_response['item'], 'institution': institution_response['institution']})
 
+# TODO: get json from JS and update DB
+@app.route('/apply-categories', methods=["POST"])
+def apply_categories():
+  for i,j in request.json.items():
+    transaction = Transactions.query.get(i)
+    transaction.category = j
+    db.session.commit()
+    print('updated')
+  flash("Transactions successfully categorized")
+  return 'OK', 200
+
+@app.route('/expense-report')
+def get_report():
+  user = User.query.get(session[CURR_USER_KEY])
+  transactions = user.transactions
+  
+  return render_template('reports.html', transactions=transactions)
+
+############################################
 def pretty_print_response(response):
   print(json.dumps(response, indent=2, sort_keys=True))
 
