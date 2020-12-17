@@ -540,7 +540,6 @@ const length = parseInt(document.getElementById("trans-count").innerText)
 
 // TODO: 
 $("#apply-categories").on("click", function(e) {
-    alert('button clicked')
     const matchingIDs = {}
 
     for (let i =1; i< length+1; i++) {

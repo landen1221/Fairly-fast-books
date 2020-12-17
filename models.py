@@ -20,9 +20,11 @@ class Transactions(db.Model):
     name = db.Column(db.Text, nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Text, nullable=False)
-    category = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
 
     users = db.relationship("User", secondary="user_transactions")
+
+    category = db.relationship("Category", backref=db.backref('transactions'))
 
 
 class Category(db.Model):

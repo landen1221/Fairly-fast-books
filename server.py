@@ -162,13 +162,23 @@ def signed_in_user():
     return redirect('/home')
 
   else:
+    # FIXME: make this so I only get uncategorized transactions
     user = User.query.get(session[CURR_USER_KEY])
     categories = Category.query.order_by(Category.name).all()
     
-    dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
-    length = len(dollar_formatted)
+    transactions = user.transactions
+    length = 0
+    for i in transactions:
+      if not i.category:
+        length += 1
+    
+    # dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
+    # length = len(dollar_formatted)
 
-    return render_template('trans-details.html', user=user, categories=categories, dollar_formatted=dollar_formatted, length=length, form=form)
+
+
+
+    return render_template('trans-details.html', user=user, categories=categories, length=length, form=form)
 
 # @app.route('/update-category/<transID>/<catID>', methods=['POST']) 
 # def update_category(transID, catID):
@@ -513,8 +523,9 @@ def item():
 def apply_categories():
   for i,j in request.json.items():
     transaction = Transactions.query.get(i)
-    transaction.category = j
+    transaction.category_id = j
     db.session.commit()
+    print('**********************')
     print('updated')
   flash("Transactions successfully categorized")
   return 'OK', 200
@@ -524,7 +535,25 @@ def get_report():
   user = User.query.get(session[CURR_USER_KEY])
   transactions = user.transactions
   
-  return render_template('reports.html', transactions=transactions)
+  # FIXME: how to do this in flask_sqlalchemy 
+  not_null_transactions = []
+  for i in transactions:
+    if i.category:
+      not_null_transactions.append(i)
+    
+  totals = {}
+  for trans in not_null_transactions:
+    if trans.category.name not in totals.keys():
+      totals[trans.category.name] = "{:,.2f}".format(trans.amount)
+    else:
+      amount = totals[trans.category.name]
+      amount = amount.split(',') 
+      amount = ''.join(amount)  
+      total = float(amount) + trans.amount
+      totals[trans.category.name] = "{:,.2f}".format(total)
+    
+  
+  return render_template('reports.html', totals=totals)
 
 ############################################
 def pretty_print_response(response):

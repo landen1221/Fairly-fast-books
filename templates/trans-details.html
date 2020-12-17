@@ -46,9 +46,10 @@
     </thead>
     <tbody>
         {% for trans in user.transactions %}
+            {% if not trans.category %}
             <tr>
                 <td class="pl-3 p-2">{{ trans.name }}</td> 
-                <td class="text-center p-2">${{ dollar_formatted[loop.index-1] }}</td>
+                <td class="text-center p-2">${{ trans.amount }}</td>
                 <td class="text-center p-2">{{ trans.date[5:] }}-{{ trans.date[:4]}}</td> 
                 <td class="text-center p-2">
 
@@ -61,10 +62,10 @@
                             {% endfor %}
                         </select>    
                     </form>
-
                 </td>
             </tr>
-            
+            {% endif %}
+
             
         {% endfor %}
     </tbody>
