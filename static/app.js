@@ -536,7 +536,7 @@ $(element).html(html).slideDown();
 }
 
 
-const length = parseInt(document.getElementById("trans-count").innerText)
+let length = parseInt(document.getElementById("trans-count").innerText)
 
 // TODO: 
 $("#apply-categories").on("click", function(e) {
@@ -574,11 +574,14 @@ $("#apply-categories").on("click", function(e) {
         if (tempData.value != 'null') {
             tempData.parentElement.parentElement.parentElement.remove();
             console.log('entered if statement')
+        } else {
+            length --
         }
     }
 
 
     console.log('done!')
+    // window.location = '/home'
     
 });
 

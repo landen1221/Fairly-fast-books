@@ -4,37 +4,44 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-6">
-        <h2 class="mt-4 mb-3">Uncategorized Transactions</h2>
-    </div>
-    <div class="col-6 text-right pt-6 mt-3 mb-3 ">
-        <button id="apply-categories" class="button button--is-primary btn-sm m-0 mt-2 py-0"> Apply Categories </button>
+<div class="row justify-content-md-center">
+        
+        <h1 class="my-5">Uncategorized Transactions</h1>
+</div>
 
-        <!-- <button id="new-category" class="button button--is-success btn-sm m-0 mt-2 p-0"> + custom category </button> -->
+<div class="row align-items-center">
+    <div class="col-9">
+        <form method="POST" id="new_category_form">
+            <div class="form-row align-items-center">
+                {{ form.hidden_tag() }}
+        
+                {% for field in form if field.widget.input_type != 'hidden' %}
+                    {% for error in field.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                    <div class="form-group col-3">
+                    {{ field(placeholder=field.label.text, class="form-control d-inline", style="font-size: 12px;") }}
+                    </div>
+                {% endfor %}
+                <div class="col-auto">
+                    <button class="btn btn-link d-inline"><u>Add</u></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-3 mb-3 text-right">
+        <button id="apply-categories" class="btn btn-primary btn-sm py-0 my-0" style="background-color: #174f7c; font-family: verdana; font-size: .75em; text-transform: capitalize;"> Apply Categories </button>
     </div>
 </div>
 
-<form method="POST" id="new_category_form">
-    <div class="form-row align-items-center">
-        {{ form.hidden_tag() }}
 
-        {% for field in form if field.widget.input_type != 'hidden' %}
-            {% for error in field.errors %}
-            <span class="text-danger">{{ error }}</span>
-            {% endfor %}
-            <div class="form-group col-3">
-            {{ field(placeholder=field.label.text, class="form-control d-inline", style="font-size: 12px;") }}
-            </div>
-        {% endfor %}
-        <div class="col-auto">
-            <button class="btn btn-link d-inline"><u>Add</u></button>
-        </div>
+
+{% if length == 0 %}
+    <div class="row justify-content-md-center my-5">
+        <br><h2><i>No transactions to review</i></h2>
     </div>
-</form>
-
-
-
+    
+{% else %}
 <table class="table table-striped bg-white">
     <thead>
         <tr>
@@ -45,6 +52,7 @@
         </tr>
     </thead>
     <tbody>
+        
         {% for trans in user.transactions %}
             {% if not trans.category %}
             <tr>
@@ -65,11 +73,10 @@
                 </td>
             </tr>
             {% endif %}
-
-            
         {% endfor %}
+        
     </tbody>
-
 </table>
+{% endif %}
 <p id="trans-count" style="display: none;">{{ length }}</p>
 {% endblock %}

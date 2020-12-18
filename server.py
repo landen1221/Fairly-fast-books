@@ -352,7 +352,7 @@ def get_auth():
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
   # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-180))
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
@@ -527,7 +527,7 @@ def apply_categories():
     db.session.commit()
     print('**********************')
     print('updated')
-  flash("Transactions successfully categorized")
+  # flash("Transactions successfully categorized")
   return 'OK', 200
 
 @app.route('/expense-report')

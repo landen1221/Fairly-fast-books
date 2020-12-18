@@ -1,29 +1,44 @@
 {% extends 'base.html' %}
+{% block extraHeaders %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+{% endblock %}
+
 
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<h1 class="text-center">Where's my money going?</h1>
-
+<br>
+<h1 class="text-center" id='title'>Where's my money going?</h1>
+<div class="row justify-content-md-center">
+    <div class="col-10 text-center justify-content-md-center">
+        <canvas id="barChart" width="400" height="150"></canvas>
+    </div>
+</div> 
+<br><br>   
 <div class="row">
-    <div class="col-7">
+    <div class="col-7 ml-4">
         <h2 class="my-3 text-center"><u> Breakdown by Category</u></h2>
         <table class="table">
             <tbody>
                 {% for key, value in totals.items() %}
                     <tr>
-                        <td>{{key}}</td>
-                        <td class="text-center">${{value}}</td>
+                        <td class="categories">&nbsp;&nbsp;{{key}}</td>
+                        <td class="text-center cat-values">${{value}}</td>
+                        <td><i class="fas fa-square" style="font-size: 1.5em;" id='square-{{loop.index}}'></i></td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    
 
-    <div class="col-5 text-center">
-        <br><br><span>Chart<br>Goes<br>Here</span>
+    <div class="col-4 justify-content-md-center text-center">
+       <h3 class="mt-4">Breakdown by %</h3>
+        <canvas id="pieChart" width="75" height="75" class="mt-4"></canvas>
+
     </div>
 
 </div>
 
+<script src="static/chart.js"></script>
 {% endblock %}
