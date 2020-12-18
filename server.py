@@ -9,7 +9,7 @@ import plaid
 import json
 import time
 from flask import Flask, request, jsonify, render_template, session, g, redirect, flash
-from models import db, connect_db, Transactions, UserTransaction, User, Category
+from models import db, connect_db, Transactions, UserTransaction, User, Category, UserCategories
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from forms import SignupUser, LoginForm, EditUserForm, NewCategory
@@ -96,7 +96,9 @@ def join_page():
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup. """
-
+    if session['user-id']:
+      return redirect('/home')
+    
     form = SignupUser()
   
     if form.validate_on_submit():
@@ -112,6 +114,15 @@ def signup():
             username = form.username.data
             user_id = User.query.filter_by(username=username).first()
             session['user-id'] = user_id.username
+
+            # TODO: Insert universal categories into UserCategories model
+            categories = ['Utilities', 'Eating Out', 'Entertainment', 'Groceries', 'Travel', 'Insurance', 'Rent/Mortgage', 'Monthly Subscriptions', 'Vehicle']
+
+            for cat in categories: 
+              category = Category.query.filter_by(name = cat).first()
+              cat_relationship = UserCategories(user_id = user_id.username, category_id = category.id)
+              db.session.add(cat_relationship)
+              db.session.commit()
         
         
         except IntegrityError:
@@ -163,9 +174,14 @@ def signed_in_user():
 
   else:
     # FIXME: make this so I only get uncategorized transactions
-    user = User.query.get(session[CURR_USER_KEY])
-    categories = Category.query.order_by(Category.name).all()
     
+    user = User.query.get(session[CURR_USER_KEY])
+    # categories = Category.query.order_by(Category.name).all()
+    
+    # FIXME: User order by w/ a relational table
+    user_categories = UserCategories.query.filter_by(user_id = session[CURR_USER_KEY]).join(Category, UserCategories.category).order_by(Category.name).all()
+
+
     transactions = user.transactions
     length = 0
     for i in transactions:
@@ -176,16 +192,8 @@ def signed_in_user():
     # length = len(dollar_formatted)
 
 
+    return render_template('trans-details.html', user=user,  length=length, form=form, user_categories = user_categories)
 
-
-    return render_template('trans-details.html', user=user, categories=categories, length=length, form=form)
-
-# @app.route('/update-category/<transID>/<catID>', methods=['POST']) 
-# def update_category(transID, catID):
-#   trans = Transaction.query.get(transID)
-#   trans.category = catID
-#   db.session.commit
-#   # return redirect('/home')
 
 # @app.route('/settings', methods=['GET', 'POST'])
 # def settings():
@@ -352,7 +360,7 @@ def get_auth():
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
   # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-180))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
@@ -426,86 +434,6 @@ def get_accounts():
     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
   pretty_print_response(accounts_response)
   return jsonify(accounts_response)
-
-# Create and then retrieve an Asset Report for one or more Items. Note that an
-# Asset Report can contain up to 100 items, but for simplicity we're only
-# including one Item here.
-# https://plaid.com/docs/#assets
-# @app.route('/api/assets', methods=['GET'])
-# def get_assets():
-#   try:
-#     asset_report_create_response = client.AssetReport.create([access_token], 10)
-#   except plaid.errors.PlaidError as e:
-#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-#   pretty_print_response(asset_report_create_response)
-
-#   asset_report_token = asset_report_create_response['asset_report_token']
-
-#   # Poll for the completion of the Asset Report.
-#   num_retries_remaining = 20
-#   asset_report_json = None
-#   while num_retries_remaining > 0:
-#     try:
-#       asset_report_get_response = client.AssetReport.get(asset_report_token)
-#       asset_report_json = asset_report_get_response['report']
-#       break
-#     except plaid.errors.PlaidError as e:
-#       if e.code == 'PRODUCT_NOT_READY':
-#         num_retries_remaining -= 1
-#         time.sleep(1)
-#         continue
-#       return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-
-#   if asset_report_json == None:
-#     return jsonify({'error': {'display_message': 'Timed out when polling for Asset Report', 'error_code': '', 'error_type': '' } })
-
-#   asset_report_pdf = None
-#   try:
-#     asset_report_pdf = client.AssetReport.get_pdf(asset_report_token)
-#   except plaid.errors.PlaidError as e:
-#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-
-#   return jsonify({
-#     'error': None,
-#     'json': asset_report_json,
-#     'pdf': base64.b64encode(asset_report_pdf).decode('utf-8'),
-#   })
-
-# Retrieve investment holdings data for an Item
-# https://plaid.com/docs/#investments
-# @app.route('/api/holdings', methods=['GET'])
-# def get_holdings():
-#   try:
-#     holdings_response = client.Holdings.get(access_token)
-#   except plaid.errors.PlaidError as e:
-#     return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-#   pretty_print_response(holdings_response)
-#   return jsonify({'error': None, 'holdings': holdings_response})
-
-# Retrieve Investment Transactions for an Item
-# https://plaid.com/docs/#investments
-# @app.route('/api/investment_transactions', methods=['GET'])
-# def get_investment_transactions():
-#   # Pull transactions for the last 30 days
-#   start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
-#   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
-#   try:
-#     investment_transactions_response = client.InvestmentTransactions.get(access_token,
-#                                                                          start_date,
-#                                                                          end_date)
-#   except plaid.errors.PlaidError as e:
-#     return jsonify(format_error(e))
-#   pretty_print_response(investment_transactions_response)
-#   return jsonify({'error': None, 'investment_transactions': investment_transactions_response})
-
-# This functionality is only relevant for the UK Payment Initiation product.
-# Retrieve Payment for a specified Payment ID
-# @app.route('/api/payment', methods=['GET'])
-# def payment():
-#   global payment_id
-#   payment_get_response = client.PaymentInitiation.get_payment(payment_id)
-#   pretty_print_response(payment_get_response)
-#   return jsonify({'error': None, 'payment': payment_get_response})
 
 # Retrieve high-level information about an Item
 # https://plaid.com/docs/#retrieve-item

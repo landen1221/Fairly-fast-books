@@ -1,12 +1,10 @@
 const myCategories = document.querySelectorAll(".categories")
 const catAmounts = document.querySelectorAll(".cat-values")
-const colors = ['#696969',
+const colors = [
 '#bada55',
 '#7fe5f0',
 '#ff0000',
-'#ff80ed',
 '#407294',
-'#cbcba9',
 '#420420',
 '#133337',
 '#065535',
@@ -16,8 +14,11 @@ const colors = ['#696969',
 '#ffc0cb',
 '#008080',
 '#ffd700',
+'#cbcba9',
 '#e6e6fa',
 '#ffa500',
+'#ff80ed',
+'#696969',
 '#ff7373',
 '#0000ff',
 '#003366',
@@ -52,13 +53,9 @@ for (let i=0; i < myCategories.length; i++) {
 }
 
 
-// document.getElementById('title').style.color = '#FFFFFF';
-
 for (let i=1; i < myCategories.length+1; i++) {
     document.getElementById(`square-${i}`).style.color = myColors[i-1]
 }
-
-
 
 
 const barArea = document.getElementById('barChart');
@@ -90,16 +87,22 @@ const totalSpent = myAmounts.reduce(function(acc, nextV) {
 });
 
 const pieAmounts = myAmounts.map(function(value) {
-    return value / totalSpent * 100
+    return parseInt(value / totalSpent * 100)
 });
 
 const pieArea = document.getElementById('pieChart');
 const pieChart = new Chart(pieArea, {
     type: 'pie',
+    options: {
+        legend: {
+            display: false
+        }
+    },
+    
     data: {
-        // labels: myLabels,
+        labels: myLabels,
         datasets: [{
-            label: '%',
+            label: 'myLabels',
             data: pieAmounts,
             backgroundColor: myColors,
             borderColor: myColors,

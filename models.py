@@ -87,5 +87,15 @@ class UserTransaction(db.Model):
 
     user = db.relationship(User, backref=db.backref("user_transactions", cascade="all, delete-orphan"))
     transaction = db.relationship(Transactions, backref=db.backref("user_transactions", cascade="all, delete-orphan"))
+
+class UserCategories(db.Model):
+    """User-specific categories model"""
+
+    __tablename__ = 'user_categories'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Text, db.ForeignKey('users.username'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     
-    
+    user = db.relationship(User, backref=db.backref("user_categories", cascade="all, delete-orphan")) 
+    category = db.relationship(Category, backref=db.backref("user_categories", cascade="all, delete-orphan"))
