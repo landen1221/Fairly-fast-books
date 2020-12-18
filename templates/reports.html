@@ -8,7 +8,28 @@
 
 {% block content %}
 <br>
-<h1 class="text-center" id='title'>Where's my money going?</h1>
+<div class="my-0 d-inline text-center">
+    <h1 class="inline text-center" id='title'>Where's my money going?</h1>
+</div>
+
+
+<form method="POST" name="sort-by" class="mb-4 text-center mt-0">
+    <label>Filter By: </label>
+    <select id="date-sort">
+        <option value="month">This month</option>
+        <option value="year" selected>Year-to-date</option>
+        <option value="all">All-time</option>
+    </select>
+    <button class="btn btn-link d-inline" id="apply-timeframe"><u>Submit</u></button>
+</form>
+<div class="row justify-content-center mb-5">
+    <div class="col-3 text-center">
+        <strong>Income:</strong> ${{ income }}
+    </div>
+    <div class="col-3 text-center">
+        <strong>Expenses:</strong> ${{ expenses }}
+    </div>
+</div>
 <div class="row justify-content-md-center">
     <div class="col-11 text-center justify-content-md-center">
         <canvas id="barChart" width="400" height="150"></canvas>

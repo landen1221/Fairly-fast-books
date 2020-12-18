@@ -25,8 +25,8 @@ app.config['SECRET_KEY'] = "plaidSandbox"
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
-PLAID_SECRET = os.getenv('PLAID_SECRET', '')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
+PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -118,7 +118,7 @@ def signup():
             session['user-id'] = user_id.username
 
             # TODO: Insert universal categories into UserCategories model
-            categories = ['Utilities', 'Eating Out', 'Entertainment', 'Groceries', 'Travel', 'Insurance', 'Rent/Mortgage', 'Monthly Subscriptions', 'Vehicle']
+            categories = ['Utilities', 'Eating Out', 'Entertainment', 'Groceries', 'Travel', 'Insurance', 'Rent/Mortgage', 'Monthly Subscriptions', 'Vehicle', 'Income']
 
             for cat in categories: 
               category = Category.query.filter_by(name = cat).first()
@@ -362,9 +362,26 @@ def get_auth():
 # https://plaid.com/docs/#transactions
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
-  # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
-  end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+  
+  try:
+    transaction = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).order_by(Transactions.date.desc()).first()
+
+  except:
+    transaction = None
+  
+  
+  # If no current transactions, import all
+  if not transaction:
+    start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-45))
+    end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-10))
+  
+  # Else, import only new transactions
+  else: 
+    most_recent = transaction.transaction.date
+    end_day = int(most_recent[-1])
+    start_date = f'{most_recent[:-1]}{end_day+1}'
+    end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
 
@@ -459,7 +476,14 @@ def apply_categories():
   flash("Transactions successfully categorized", success)
   return 'OK', 200
 
-@app.route('/expense-report')
+# @app.route('/expense-report')
+# def redirect_user():
+#   if CURR_USER_KEY in session:
+#     return redirect('/expense-report/all')
+#   else:
+#     return redirect('/login')
+
+@app.route('/expense-report', methods=["GET","POST"])
 def get_report():
   user = User.query.get(session[CURR_USER_KEY])
   transactions = user.transactions
@@ -481,8 +505,16 @@ def get_report():
       total = float(amount) + trans.amount
       totals[trans.category.name] = "{:,.2f}".format(total)
     
-  
-  return render_template('reports.html', totals=totals)
+  income = 0
+  expenses = 0
+  for trans in not_null_transactions:
+    if trans.amount < 0:
+      amount = trans.amount * -1 
+      income += amount
+    else:
+      expenses += trans.amount
+    
+  return render_template('reports.html', totals=totals, income=income, expenses=expenses)
 
 ############################################
 def pretty_print_response(response):
