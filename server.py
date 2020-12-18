@@ -25,8 +25,8 @@ app.config['SECRET_KEY'] = "plaidSandbox"
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
-PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
+PLAID_SECRET = os.getenv('PLAID_SECRET', '')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -91,13 +91,15 @@ def logout_user():
 
 @app.route('/')
 def join_page():
+  # if CURR_USER_KEY in session:
+  #   return redirect ('/home')
   return render_template('home.html')
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup. """
-    if session['user-id']:
-      return redirect('/home')
+    # if session['user-id']:
+    #   return redirect('/home')
     
     form = SignupUser()
   
@@ -167,32 +169,33 @@ def signed_in_user():
       db.session.commit()
 
     except IntegrityError:
-      flash("Category already exists", 'danger')
-      return redirect('/home')
-    
+      db.session.rollback()
+      data = form.name.data
+      new_cat_id = Category.query.filter_by(name = data.title()).first()
+
+      new_user_cat = UserCategories(user_id = session[CURR_USER_KEY], category_id = new_cat_id.id)
+
+      db.session.add(new_user_cat)
+      db.session.commit()
+      flash("Category added", 'success')
+      return redirect('/home')    
+
+    flash("Category added", 'success')
     return redirect('/home')
 
   else:
-    # FIXME: make this so I only get uncategorized transactions
-    
-    user = User.query.get(session[CURR_USER_KEY])
-    # categories = Category.query.order_by(Category.name).all()
-    
-    # FIXME: User order by w/ a relational table
+ 
+    # Seems to be working!!!!!!!!!!!!!!!!!!
+    transactions = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id == None).all()
+
+
+    # This works (don't touch)
     user_categories = UserCategories.query.filter_by(user_id = session[CURR_USER_KEY]).join(Category, UserCategories.category).order_by(Category.name).all()
-
-
-    transactions = user.transactions
-    length = 0
-    for i in transactions:
-      if not i.category:
-        length += 1
     
-    # dollar_formatted = [("{:.2f}".format(i.amount)) for i in user.transactions]
-    # length = len(dollar_formatted)
+    dollar_formatted = [("{:.2f}".format(i.transaction.amount)) for i in transactions]
 
 
-    return render_template('trans-details.html', user=user,  length=length, form=form, user_categories = user_categories)
+    return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted)
 
 
 # @app.route('/settings', methods=['GET', 'POST'])
@@ -360,7 +363,7 @@ def get_auth():
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
   # Pull transactions for the last 30 days
-  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-180))
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
@@ -453,9 +456,7 @@ def apply_categories():
     transaction = Transactions.query.get(i)
     transaction.category_id = j
     db.session.commit()
-    print('**********************')
-    print('updated')
-  # flash("Transactions successfully categorized")
+  flash("Transactions successfully categorized", success)
   return 'OK', 200
 
 @app.route('/expense-report')
@@ -463,7 +464,7 @@ def get_report():
   user = User.query.get(session[CURR_USER_KEY])
   transactions = user.transactions
   
-  # FIXME: how to do this in flask_sqlalchemy 
+  # FIXME: how to do this in flask_sqlalchemy -- get non-null transactions
   not_null_transactions = []
   for i in transactions:
     if i.category:

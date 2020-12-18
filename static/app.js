@@ -536,11 +536,13 @@ $(element).html(html).slideDown();
 }
 
 
-let length = parseInt(document.getElementById("trans-count").innerText)
+
 
 // TODO: 
 $("#apply-categories").on("click", function(e) {
     const matchingIDs = {}
+    let length = document.querySelectorAll(".trans-selector").length
+    console.log(length)
 
     for (let i =1; i< length+1; i++) {
         let tempData = document.getElementById(`form-${i}`)
@@ -566,26 +568,15 @@ $("#apply-categories").on("click", function(e) {
        }
     });
 
-
-
     // remove element from DOM
     for (let i =1; i< length+1; i++) {
         let tempData = document.getElementById(`form-${i}`)
+        console.log(tempData.value)
         if (tempData.value != 'null') {
             tempData.parentElement.parentElement.parentElement.remove();
-            console.log('entered if statement')
-        } else {
-            length --
         }
     }
 
-
     console.log('done!')
-    // window.location = '/home'
-    
+
 });
-
-
-
-// $("#get-transactions-btn").on("click", function (e) {
-//     $.get("/api/transactions", function (data) {

@@ -55,26 +55,26 @@
     </thead>
     <tbody>
         
-        {% for trans in user.transactions %}
-            {% if not trans.category %}
+        {% for trans in transactions %}
+      
             <tr>
-                <td class="pl-3 p-2">{{ trans.name }}</td> 
-                <td class="text-center p-2">${{ trans.amount }}</td>
-                <td class="text-center p-2">{{ trans.date[5:] }}-{{ trans.date[:4]}}</td> 
+                <td class="pl-3 p-2">{{ trans.transaction.name }}</td> 
+                <td class="text-center p-2">${{ dollar_formatted[loop.index-1] }}</td>
+                <td class="text-center p-2">{{ trans.transaction.date[5:] }}-{{ trans.transaction.date[:4]}}</td> 
                 <td class="text-center p-2">
 
                     <form name="{{ trans.transaction_id }}">
 
-                        <select id ="form-{{loop.index}}" data-transid="{{ trans.transaction_id }}" style='font-size: 14px;'>
+                        <select id ="form-{{loop.index}}" data-transid="{{ trans.transaction_id }}" class="trans-selector" style='font-size: 14px;'>
                             <option value = "null" disable selected >--</option>
                             {% for category in user_categories %}
-                                <option value ="{{category.id}}" >{{category.category.name}}</option>
+                                <option value ="{{category.category.id}}" >{{category.category.name}}</option>
                             {% endfor %}
                         </select>    
                     </form>
                 </td>
             </tr>
-            {% endif %}
+           
         {% endfor %}
         
     </tbody>
