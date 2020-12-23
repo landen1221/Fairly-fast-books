@@ -28,8 +28,8 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "thisIsTopSecret!")
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
-PLAID_SECRET = os.getenv('PLAID_SECRET', '')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
+PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -180,10 +180,10 @@ def signed_in_user():
 
       db.session.add(new_user_cat)
       db.session.commit()
-      flash("Category added", 'success')
+      # flash("Category added", 'success')
       return redirect('/home')    
 
-    flash("Category added", 'success')
+    # flash("Category added", 'success')
     return redirect('/home')
 
   else:
@@ -476,7 +476,7 @@ def apply_categories():
     transaction = Transactions.query.get(i)
     transaction.category_id = j
     db.session.commit()
-  flash("Transactions successfully categorized", success)
+  # flash("Transactions successfully categorized", 'success')
   return 'OK', 200
 
 # @app.route('/expense-report')

@@ -312,28 +312,7 @@ $("#get-transactions-btn").on("click", function (e) {
     }
     
     //  TODO: 
-    window.location.href = "/home"
-
-    // $("#get-transactions-data").slideUp(function () {
-    //     var html =
-    //     "<tr><td class='ml-1'><strong>Description</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><td><strong>Category</strong></td></tr>";
-    //     data.transactions.forEach(function (txn, idx) {
-    //         html += "<tr>";
-    //         html += "<td class='pl-2'>" + txn.name + "</td>";
-    //         html += "<td>$" + txn.amount + "</td>";
-    //         html += "<td>" + txn.date + "</td>";
-    //         html += "<td>" + 'Groceries' + "</td>";  
-    //         html += "</tr>";
-    //     });
-
-    //     $(this).slideUp(function () {
-    //     $(this).html(html).slideDown();
-    //     });
-    // });
-    
-    // let card = document.getElementsByid("import-card");
-    // card.parentNode.removeChild(card);
-    
+    window.location.href = "/home"   
     
 
     });
@@ -539,19 +518,24 @@ $(element).html(html).slideDown();
 
 
 // TODO: 
-$("#apply-categories").on("click", function(e) {
-    const matchingIDs = {}
-    let length = document.querySelectorAll(".trans-selector").length
-    console.log(length)
 
-    for (let i =1; i< length+1; i++) {
-        let tempData = document.getElementById(`form-${i}`)
+$('body').on('click', '#apply-categories', function(e) {
+    const matchingIDs = {}
+    let transactions = document.querySelectorAll(".trans-selector")  
+    let length = transactions.length
+    let formIDs = []
+    
+    for (let i=0; i< length; i++) {
+        formIDs.push(transactions[i].id)
+    }
+
+
+    for (let i =0; i< length; i++) {
+        let tempData = document.getElementById(formIDs[i])
         if (tempData.value != 'null') {
             matchingIDs[tempData.dataset.transid] = tempData.value
         }
     }
-
-    let resp = -1
 
     $.ajax({
        type: 'POST',
@@ -570,13 +554,13 @@ $("#apply-categories").on("click", function(e) {
 
     // remove element from DOM
     for (let i =1; i< length+1; i++) {
-        let tempData = document.getElementById(`form-${i}`)
-        console.log(tempData.value)
-        if (tempData.value != 'null') {
+        let tempData = document.getElementById(formIDs[i])
+        if (tempData && tempData.value != 'null') {
+            console.log(tempData.value)
             tempData.parentElement.parentElement.parentElement.remove();
         }
     }
 
-    console.log('done!')
+    console.log('done!');
 
 });

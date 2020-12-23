@@ -59,7 +59,6 @@ for (let i=1; i < myCategories.length+1; i++) {
     document.getElementById(`square-${i}`).style.color = myColors[i-1]
 }
 
-
 const barArea = document.getElementById('barChart');
 const barChart = new Chart(barArea, {
     type: 'bar',
