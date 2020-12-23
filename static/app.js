@@ -553,7 +553,7 @@ $('body').on('click', '#apply-categories', function(e) {
     });
 
     // remove element from DOM
-    for (let i =1; i< length+1; i++) {
+    for (let i =0; i< length; i++) {
         let tempData = document.getElementById(formIDs[i])
         if (tempData && tempData.value != 'null') {
             console.log(tempData.value)
