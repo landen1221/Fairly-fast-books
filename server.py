@@ -21,7 +21,8 @@ import os
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql:///plaid_db')
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "thisIsTopSecret!")
 # app.config['SECRET_KEY'] = "plaidSandbox"
 # CORS(app)
