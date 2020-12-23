@@ -1,3 +1,5 @@
+// https://www.chartjs.org/
+
 const myCategories = document.querySelectorAll(".categories")
 const catAmounts = document.querySelectorAll(".cat-values")
 const colors = [
