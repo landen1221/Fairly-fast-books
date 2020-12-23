@@ -13,6 +13,7 @@ from models import db, connect_db, Transactions, UserTransaction, User, Category
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from forms import SignupUser, LoginForm, EditUserForm, NewCategory
+import os
 # from flask_cors import CORS
 
 # from sqlalchemy import create_engine
@@ -21,7 +22,8 @@ CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///plaid_db'
-app.config['SECRET_KEY'] = "plaidSandbox"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "thisIsTopSecret!")
+# app.config['SECRET_KEY'] = "plaidSandbox"
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
