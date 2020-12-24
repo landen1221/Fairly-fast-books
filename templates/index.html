@@ -12,6 +12,7 @@
           <div class="row justify-content-md-center text-center m-4">
             <div class="card" style="width: 45rem; background-color: azure;">
               <h2 class="join-message">Step 1 of 2: Connect to Bank</h2>
+              <p>Use Login: user_good / pass_good </p>
               
               <button id="link-btn" class="button button--is-primary" disabled>
                 Connect
@@ -44,102 +45,12 @@
                   <tbody id="get-transactions-data"></tbody>
                 </table>
               </div>
-              
-              <!-- <p class="initial-view__description">
-                use 
-                username: <strong>user_good</strong>
-                password: <strong>pass_good</strong>. 
-                Upon completion, a <code>public_token</code> will be passed back 
-                to the server and exchanged for <code>access_token</code>.
-              </p> -->
   
               <div class="loading-indicator"></div>
             </div>
 
 
-              <!-- Auth -->
-              <!-- <div class="item-data-row">
-                <div class="item-data-row__left">
-                  <div class="item-data-row__request-type">post</div>
-                </div>
-                <div class="item-data-row__center">
-                  <div class="item-data-row__nicename">Auth</div>
-                  <div class="item-data-row__endpoint">/auth/get</div>
-                  <div class="item-data-row__description">
-                    Retrieve account and routing numbers for checking and
-                    savings accounts.
-                  </div>
-                </div>
-                <div class="item-data-row__right">
-                  <button
-                    id="get-auth-btn"
-                    class="button button--is-small button--is-default button--is-full-width"
-                  >
-                    Send request
-                  </button>
-                </div>
-                <div class="item-data-row__response">
-                  <table>
-                    <tbody id="get-auth-data"></tbody>
-                  </table>
-                </div>
-              </div> -->
-
-              <!--Transactions -->
-              <!-- <div class="item-data-row">
-                <div class="item-data-row__left">
-                  <div class="item-data-row__request-type">post</div>
-                </div>
-                <div class="item-data-row__center">
-                  <div class="item-data-row__nicename">Transactions</div>
-                  <div class="item-data-row__endpoint">/transactions/get</div>
-                  <div class="item-data-row__description">
-                    Retrieve transactions for credit and depository accounts.
-                  </div>
-                </div>
-                <div class="item-data-row__right">
-                  <button
-                    id="get-transactions-btn"
-                    class="button button--is-small button--is-default button--is-full-width"
-                  >
-                    Send request
-                  </button>
-                </div>
-                <div class="item-data-row__response">
-                  <table>
-                    <tbody id="get-transactions-data"></tbody>
-                  </table>
-                </div>
-              </div> -->
-
-              <!-- Identity -->
-              <!-- <div class="item-data-row">
-                <div class="item-data-row__left">
-                  <div class="item-data-row__request-type">post</div>
-                </div>
-                <div class="item-data-row__center">
-                  <div class="item-data-row__nicename">Identity</div>
-                  <div class="item-data-row__endpoint">/identity/get</div>
-                  <div class="item-data-row__description">
-                    Retrieve Identity information on file with the bank. Reduce
-                    fraud by comparing user-submitted data to validate identity.
-                  </div>
-                </div>
-                <div class="item-data-row__right">
-                  <button
-                    id="get-identity-btn"
-                    class="button button--is-small button--is-default button--is-full-width"
-                  >
-                    Send request
-                  </button>
-                </div>
-                <div class="item-data-row__response">
-                  <table>
-                    <tbody id="get-identity-data"></tbody>
-                  </table>
-                </div>
-              </div> -->
-
+              
               <!-- Balance -->
               <!-- TODO: May add later -->
               <!-- <div class="item-data-row">

@@ -312,7 +312,7 @@ $("#get-transactions-btn").on("click", function (e) {
     }
     
     //  TODO: 
-    window.location.href = "/home"   
+    window.location.href = "/transactions"   
     
 
     });
@@ -545,7 +545,6 @@ $('body').on('click', '#apply-categories', function(e) {
        url: '/apply-categories',
        success: function (e) {
            console.log(e);
-        //    window.location = "/home";
        },
        error: function(error) {
             console.log(error);
@@ -564,3 +563,16 @@ $('body').on('click', '#apply-categories', function(e) {
     console.log('done!');
 
 });
+
+// TODO: if categorized click, show categorized transactions
+$("#categorized").on('click', function(e) {
+    e.preventDefault()
+    let checked = document.getElementById("categorized")    
+
+    if (checked.checked == false) {
+        window.location.href = "/transactions"
+    } else {
+        window.location.href = "/allTransactions"
+    }
+    
+})

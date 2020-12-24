@@ -9,7 +9,7 @@
 </div>
 <div class="row ">
     <div class="col  text-center">
-        <h1 class="d-inline">Uncategorized Transactions</h1>
+        <h1 class="d-inline">My Transactions</h1>
         <p>Select appropriate category for each transaction and then click apply</p>
         
     </div>
@@ -37,6 +37,13 @@
     </div>
     <div class="col-3 mb-3 text-right">
         <button id="apply-categories" class="btn btn-primary btn-sm py-0 my-0" style="background-color: #174f7c; font-family: verdana; font-size: .75em; text-transform: capitalize;"> Apply Categories </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col ml-2">
+
+        <input type="checkbox" id="categorized" name="categorized" value="categorized" {% if categorized == 'True' %} checked {% endif %}>
+        <label for="categorized"> Show categorized transactions</label><br>
     </div>
 </div>
 
@@ -71,10 +78,11 @@
                     <form name="{{ trans.transaction_id }}">
 
                         <select id ="form-{{loop.index}}" data-transid="{{ trans.transaction_id }}" class="trans-selector" style='font-size: 14px;'>
-                            <option value = "null" disable selected >--</option>
-                            {% for category in user_categories %}
-                                <option value ="{{category.category.id}}" >{{category.category.name}}</option>
-                            {% endfor %}
+                                <option value = "null" disable selected >--</option>
+                                {% for category in user_categories %}
+                                    <option value ="{{category.category.id}}" {% if trans.transaction.category_id == category.category.id %}selected{% endif %}>{{category.category.name}}</option>
+                                {% endfor %}
+                            
                         </select>    
                     </form>
                 </td>

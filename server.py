@@ -95,14 +95,12 @@ def logout_user():
 @app.route('/')
 def join_page():
   # if CURR_USER_KEY in session:
-  #   return redirect ('/home')
+  #   return redirect ('/transactions')
   return render_template('home.html')
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup. """
-    # if session['user-id']:
-    #   return redirect('/home')
     
     form = SignupUser()
   
@@ -158,13 +156,13 @@ def login_page():
 
   return render_template('login.html', form=form)
 
+
 # TODO: Render transaction table
-@app.route('/home', methods=["GET", "POST"])
+@app.route('/transactions', methods=["GET", "POST"])
 def signed_in_user():
   form = NewCategory()
 
   if form.validate_on_submit():
-    print(form.name.data)
     try:
       data = form.name.data
       new_cat = Category(name=data.title())
@@ -180,17 +178,14 @@ def signed_in_user():
 
       db.session.add(new_user_cat)
       db.session.commit()
-      # flash("Category added", 'success')
-      return redirect('/home')    
+      return redirect('/transactions')    
 
-    # flash("Category added", 'success')
-    return redirect('/home')
+    return redirect('/transactions')
 
   else:
  
     # Seems to be working!!!!!!!!!!!!!!!!!!
     transactions = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id == None).all()
-
 
     # This works (don't touch)
     user_categories = UserCategories.query.filter_by(user_id = session[CURR_USER_KEY]).join(Category, UserCategories.category).order_by(Category.name).all()
@@ -198,7 +193,42 @@ def signed_in_user():
     dollar_formatted = [("{:.2f}".format(i.transaction.amount)) for i in transactions]
 
 
-    return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted)
+    return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted, categorized='False')
+
+
+############# MAY NOT NEED THIS ROUTE
+@app.route('/allTransactions', methods=["GET", "POST"])
+def signed_in_user_categorized():
+  form = NewCategory()
+
+  if form.validate_on_submit():
+    try:
+      data = form.name.data
+      new_cat = Category(name=data.title())
+      db.session.add(new_cat)
+      db.session.commit()
+
+    except IntegrityError:
+      db.session.rollback()
+      data = form.name.data
+      new_cat_id = Category.query.filter_by(name = data.title()).first()
+
+      new_user_cat = UserCategories(user_id = session[CURR_USER_KEY], category_id = new_cat_id.id)
+
+      db.session.add(new_user_cat)
+      db.session.commit()
+      return redirect('/allTransactions')    
+
+    return redirect('/allTransactions')
+
+  else:    
+    transactions = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).all()
+
+    user_categories = UserCategories.query.filter_by(user_id = session[CURR_USER_KEY]).join(Category, UserCategories.category).order_by(Category.name).all()
+    
+    dollar_formatted = [("{:.2f}".format(i.transaction.amount)) for i in transactions]
+
+    return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted, categorized='True')
 
 
 # @app.route('/settings', methods=['GET', 'POST'])
@@ -215,7 +245,7 @@ def signed_in_user():
 
 #       db.session.commit()
 
-#       return redirect('/home')
+#       return redirect('/transactions')
     
 #     except IntegrityError:
 #       flash("Username already taken", 'danger')
@@ -486,12 +516,22 @@ def apply_categories():
 #   else:
 #     return redirect('/login')
 
+# TODO: allow for year/month/all-time functionality
 @app.route('/expense-report', methods=["GET","POST"])
 def get_report():
   user = User.query.get(session[CURR_USER_KEY])
   transactions = user.transactions
+
+  #################### TESTING
+  not_null_totals = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id == None).filter(Transactions.date > '2020-12-20').all()
   
-  # FIXME: how to do this in flask_sqlalchemy -- get non-null transactions
+  print(not_null_totals)
+  
+  for i in not_null_totals:
+    print('**********')
+    print(i.transaction.amount)
+  ############################## 
+  
   not_null_transactions = []
   for i in transactions:
     if i.category:
@@ -516,7 +556,10 @@ def get_report():
       income += amount
     else:
       expenses += trans.amount
-    
+  
+  income = "{:,.2f}".format(income)
+  expenses = "{:,.2f}".format(expenses)
+  
   return render_template('reports.html', totals=totals, income=income, expenses=expenses)
 
 ############################################
