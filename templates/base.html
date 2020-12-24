@@ -12,39 +12,47 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark pt-3">
-    <div class="container" >
-        <div class=" navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
 
-            <ul class="navbar-nav mr-auto m-0 p-0">
-                <li class="nav-item m-0 p-0">
-                    {% if not g.user %}
-                    <a class="nav-link ml-2" href="/"> <i class="fas fa-hand-holding-usd pr-2" style="font-size: 1.5em; color: lightgray;"></i></a>
-                    {% else %}
-                    <a class="nav-link ml-2" href="/transactions"> <i class="fas fa-hand-holding-usd pr-2" style="font-size: 1.5em; color: lightgray;"></i></a>
-                    {% endif %}
-                
-                </li>
-            </ul>
-        </div>
-        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
-            <ul class="navbar-nav ml-auto m-0 p-0">
-                {% if not g.user %}
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/login">Login</a></li>
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/signup">&emsp;Signup</a></li>
-                
-                {% else %}
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/transactions">My transactions</a></li>
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/expense-report">&emsp;My Reports</a></li>
-                <li class="nav-item m-0 p-0"><a class="nav-link" href="/logout">&emsp;Logout</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light p-0 m-0">
+    <div class="container ">
         
-    </nav>
+        <a class="navbar-brand m-1 p-1" {% if not g.user %} href="/" {% else %} href="/transactions" {% endif %}><i class="fas fa-hand-holding-usd" style="font-size: 1.9em; color: lightgray;"></i></a>
+        
+        <button class="navbar-toggler m-1 p-1" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon m-1 p-1"></span>
+        </button>
+        <div class="collapse navbar-collapse m-0 p-0" id="navbarNav">
+          <ul class="navbar-nav ml-auto m-0 p-0">
+            {% if not g.user %}
+            <li class="nav-item active m-1 p-1">
+              <a class="nav-link " href="/login">Login</a>
+            </li>
 
-<div class="container mb-3" {% if g.user %}style="background-color:rgba(255, 255, 255, 0.9); height: 100vh"{% endif %}>
+            <li class="nav-item m-1 p-1">
+              <a class="nav-link " href="/signup" style="color: lightgray;">Signup</a>
+            </li>
+            
+            {% else %}
+
+            <li class="nav-item m-1 p-1">
+              <a class="nav-link " href="/transactions" style="color: lightgray;">Transactions</a>
+            </li>
+
+            <li class="nav-item m-1 p-1">
+              <a class="nav-link disabled " href="/expense-report" style="color: lightgray;">&emsp;Reports</a>
+            </li>
+
+            <li class="nav-item m-1 p-1">
+                <a class="nav-link disabled " href="/logout" style="color: lightgray;">&emsp;Logout</a>
+            </li>
+            {% endif %}
+
+          </ul>
+        </div>
+      </div>
+      </nav>
+
+<div class="container mb-3" {% if g.user %} style="background-color:rgba(255, 255, 255, 0.9); height: 100vh"{% endif %}>
     {% for category, message in get_flashed_messages (with_categories=True) %}
         <div class="alert alert-{{ category }}">{{ message }}</div>
     {% endfor %}
