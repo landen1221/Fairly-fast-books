@@ -555,12 +555,9 @@ $('body').on('click', '#apply-categories', function(e) {
     for (let i =0; i< length; i++) {
         let tempData = document.getElementById(formIDs[i])
         if (tempData && tempData.value != 'null') {
-            console.log(tempData.value)
             tempData.parentElement.parentElement.parentElement.remove();
         }
     }
-
-    console.log('done!');
 
 });
 
@@ -575,4 +572,11 @@ $("#categorized").on('click', function(e) {
         window.location.href = "/allTransactions"
     }
     
+})
+
+// TODO: handle filter-by on expense-report
+$("#date-sort").submit(function(e) {
+    e.preventDefault()
+    let value = document.getElementById("selected-value").value
+    window.location.href = `/expense-report-${value}`
 })

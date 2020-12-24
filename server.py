@@ -28,8 +28,8 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "thisIsTopSecret!")
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '5fd2b9d7284fbe00120a1d93')
-PLAID_SECRET = os.getenv('PLAID_SECRET', 'e2378e768e4862e413091800c2f592')
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', '')
+PLAID_SECRET = os.getenv('PLAID_SECRET', '')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -509,53 +509,43 @@ def apply_categories():
   # flash("Transactions successfully categorized", 'success')
   return 'OK', 200
 
-# @app.route('/expense-report')
-# def redirect_user():
-#   if CURR_USER_KEY in session:
-#     return redirect('/expense-report/all')
-#   else:
-#     return redirect('/login')
+@app.route('/expense-report')
+def redirect_user():
+  return redirect('/expense-report-year')
 
 # TODO: allow for year/month/all-time functionality
-@app.route('/expense-report', methods=["GET","POST"])
-def get_report():
-  user = User.query.get(session[CURR_USER_KEY])
-  transactions = user.transactions
+@app.route('/expense-report-<date>', methods=["GET","POST"])
+def get_report(date):
+  if date == 'year':
+    date = '2020-01-01'
+  elif date == 'month':
+    date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+    date = date[0:7] + '-01'
+  else:
+    date = '2000-01-01'
 
-  #################### TESTING
-  not_null_totals = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id == None).filter(Transactions.date > '2020-12-20').all()
+  not_null_transaction = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id != None).filter(Transactions.date > date).all()
   
-  print(not_null_totals)
-  
-  for i in not_null_totals:
-    print('**********')
-    print(i.transaction.amount)
-  ############################## 
-  
-  not_null_transactions = []
-  for i in transactions:
-    if i.category:
-      not_null_transactions.append(i)
     
   totals = {}
-  for trans in not_null_transactions:
-    if trans.category.name not in totals.keys():
-      totals[trans.category.name] = "{:,.2f}".format(trans.amount)
+  for trans in not_null_transaction:
+    if trans.transaction.category.name not in totals.keys():
+      totals[trans.transaction.category.name] = "{:,.2f}".format(trans.transaction.amount)
     else:
-      amount = totals[trans.category.name]
+      amount = totals[trans.transaction.category.name]
       amount = amount.split(',') 
       amount = ''.join(amount)  
-      total = float(amount) + trans.amount
-      totals[trans.category.name] = "{:,.2f}".format(total)
+      total = float(amount) + trans.transaction.amount
+      totals[trans.transaction.category.name] = "{:,.2f}".format(total)
     
   income = 0
   expenses = 0
-  for trans in not_null_transactions:
-    if trans.amount < 0:
-      amount = trans.amount * -1 
+  for trans in not_null_transaction:
+    if trans.transaction.amount < 0:
+      amount = trans.transaction.amount * -1 
       income += amount
     else:
-      expenses += trans.amount
+      expenses += trans.transaction.amount
   
   income = "{:,.2f}".format(income)
   expenses = "{:,.2f}".format(expenses)

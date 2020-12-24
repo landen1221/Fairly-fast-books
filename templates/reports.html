@@ -9,18 +9,18 @@
 {% block content %}
 <br>
 <div class="my-0 d-inline text-center">
-    <h1 class="inline text-center" id='title'>Where's my money going?</h1>
+    <h1 class="inline text-center my-0" id='title'>Where's my money going?</h1>
 </div>
 
 
-<form method="GET" name="sort-by" class="mb-4 text-center mt-0">
+<form method="POST" id="date-sort" name="sort-by" class="mb-4 text-center mt-0">
     <label>Filter By: </label>
-    <select id="date-sort">
+    <select id="selected-value">
         <option value="month">This month</option>
         <option value="year" selected>Year-to-date</option>
         <option value="all">All-time</option>
     </select>
-    <button class="btn btn-link d-inline" id="apply-timeframe"><u>Submit</u></button>
+    <button type="submit" class="btn btn-link d-inline" id="apply-timeframe"><u>Submit</u></button>
 </form>
 <div class="row justify-content-center mb-5">
     <div class="col-3 text-center">
