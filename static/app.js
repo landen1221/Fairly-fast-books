@@ -315,7 +315,6 @@ $('body').on('click', '#apply-categories', function(e) {
         let tempData = document.getElementById(transactions[i].id)
         if (tempData.value != 'null') {
             matchingIDs[tempData.dataset.transid] = tempData.value;
-            tempData.parentElement.parentElement.parentElement.remove();
         }
     }
 
@@ -325,8 +324,16 @@ $('body').on('click', '#apply-categories', function(e) {
        data: JSON.stringify(matchingIDs),
        dataType: 'json',
        url: '/apply-categories',
+    }).done(function() {
+        for (let i =0; i< length; i++) {
+            let tempData = document.getElementById(transactions[i].id)
+            if (tempData.value != 'null') {
+                tempData.parentElement.parentElement.parentElement.remove();
+            }
+        };
+    }).fail(function(error) {
+        console.log(error)
     });
-
 });
 
 // TODO: if categorized click, show categorized transactions

@@ -507,7 +507,9 @@ def apply_categories():
     transaction.category_id = j
     db.session.commit()
   # flash("Transactions successfully categorized", 'success')
-  return 'OK', 200
+  resp = jsonify(success=True)
+  resp.status_code=200
+  return resp
 
 @app.route('/expense-report')
 def redirect_user():
