@@ -17,6 +17,7 @@ This project utilizes the following technologies:
 * HTML/CSS
 * Javascript
 * Postgres
+* Bcrypt
 
 ## Overview
 This website is designed to be a basic version of quickbooks. You'll be able to import transactions directly from your bank, and then sort each transaction based on categories you create. This will allow the user to easily see where their money is being spent and then plan their budget accordingly. They can sort their income/expenses by month, year, or by all available transactions. 

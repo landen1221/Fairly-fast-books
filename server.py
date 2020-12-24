@@ -149,7 +149,7 @@ def login_page():
         if user:
             do_login(user)
             flash(f"Welcome back, {user.username}!", "success")
-            return redirect("/home")
+            return redirect("/transactions")
 
         flash("Invalid credentials.", 'danger')
 

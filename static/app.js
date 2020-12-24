@@ -116,168 +116,71 @@ $("#link-btn").on("click", function (e) {
     }
 });
 
-$("#get-accounts-btn").on("click", function (e) {
-    $.get("/api/accounts", function (data) {
-    $("#get-accounts-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var html =
-        "<tr><td><strong>Name</strong></td><td><strong>Balances</strong></td><td><strong>Subtype</strong></td><td><strong>Mask</strong></td></tr>";
-        data.accounts.forEach(function (account, idx) {
-        html += "<tr>";
-        html += "<td>" + account.name + "</td>";
-        html +=
-            "<td>$" +
-            (account.balances.available != null
-            ? account.balances.available
-            : account.balances.current) +
-            "</td>";
-        html += "<td>" + account.subtype + "</td>";
-        html += "<td>" + account.mask + "</td>";
-        html += "</tr>";
-        });
 
-        $(this).html(html).slideDown();
-    });
-    });
-});
 
-$("#get-auth-btn").on("click", function (e) {
-    $.get("/api/auth", function (data) {
-    $("#get-auth-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var isAch = data.numbers.ach.length > 0;
-        var routingLabel = isAch
-        ? "Routing #"
-        : "Institution and Branch #";
+// $("#get-auth-btn").on("click", function (e) {
+//     $.get("/api/auth", function (data) {
+//     $("#get-auth-data").slideUp(function () {
+//         if (data.error != null) {
+//         displayError(this, data.error);
+//         return;
+//         }
+//         var isAch = data.numbers.ach.length > 0;
+//         var routingLabel = isAch
+//         ? "Routing #"
+//         : "Institution and Branch #";
 
-        var html =
-        "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Account #</strong></td><td><strong>" +
-        routingLabel +
-        "</strong></td></tr>";
-        if (isAch) {
-        data.numbers.ach.forEach(function (achNumbers, idx) {
-            // Find the account associated with this set of account and routing numbers
-            var account = data.accounts.filter(function (a) {
-            return a.account_id === achNumbers.account_id;
-            })[0];
-            html += "<tr>";
-            html += "<td>" + account.name + "</td>";
-            html +=
-            "<td>$" +
-            (account.balances.available != null
-                ? account.balances.available
-                : account.balances.current) +
-            "</td>";
-            html += "<td>" + achNumbers.account + "</td>";
-            html += "<td>" + achNumbers.routing + "</td>";
-            html += "</tr>";
-        });
-        } else {
-        data.numbers.eft.forEach(function (eftNumber, idx) {
-            // Find the account associated with this set of account and routing numbers
-            var account = data.accounts.filter(function (a) {
-            return a.account_id === eftNumber.account_id;
-            })[0];
-            html += "<tr>";
-            html += "<td>" + account.name + "</td>";
-            html +=
-            "<td>$" +
-            (account.balances.available != null
-                ? account.balances.available
-                : account.balances.current) +
-            "</td>";
-            html += "<td>" + eftNumber.account + "</td>";
-            html +=
-            "<td>" +
-            eftNumber.institution +
-            " " +
-            eftNumber.branch +
-            "</td>";
-            html += "</tr>";
-        });
-        }
-        $(this).html(html).slideDown();
-    });
-    });
-});
+//         var html =
+//         "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Account #</strong></td><td><strong>" +
+//         routingLabel +
+//         "</strong></td></tr>";
+//         if (isAch) {
+//         data.numbers.ach.forEach(function (achNumbers, idx) {
+//             // Find the account associated with this set of account and routing numbers
+//             var account = data.accounts.filter(function (a) {
+//             return a.account_id === achNumbers.account_id;
+//             })[0];
+//             html += "<tr>";
+//             html += "<td>" + account.name + "</td>";
+//             html +=
+//             "<td>$" +
+//             (account.balances.available != null
+//                 ? account.balances.available
+//                 : account.balances.current) +
+//             "</td>";
+//             html += "<td>" + achNumbers.account + "</td>";
+//             html += "<td>" + achNumbers.routing + "</td>";
+//             html += "</tr>";
+//         });
+//         } else {
+//         data.numbers.eft.forEach(function (eftNumber, idx) {
+//             // Find the account associated with this set of account and routing numbers
+//             var account = data.accounts.filter(function (a) {
+//             return a.account_id === eftNumber.account_id;
+//             })[0];
+//             html += "<tr>";
+//             html += "<td>" + account.name + "</td>";
+//             html +=
+//             "<td>$" +
+//             (account.balances.available != null
+//                 ? account.balances.available
+//                 : account.balances.current) +
+//             "</td>";
+//             html += "<td>" + eftNumber.account + "</td>";
+//             html +=
+//             "<td>" +
+//             eftNumber.institution +
+//             " " +
+//             eftNumber.branch +
+//             "</td>";
+//             html += "</tr>";
+//         });
+//         }
+//         $(this).html(html).slideDown();
+//     });
+//     });
+// });
 
-$("#get-identity-btn").on("click", function (e) {
-    $.get("/api/identity", function (data) {
-    $("#get-identity-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var html =
-        '<tr class="response-row response-row--is-identity"><td><strong>Names</strong></td><td><strong>Emails</strong></td><td><strong>Phone numbers</strong></td><td><strong>Addresses</strong></td></tr><tr class="response-row response-row--is-identity">';
-        var identityData = data.identity[0];
-        var html =
-        '<tr class="response-row response-row--is-identity"><td><strong>Names</strong></td><td><strong>Emails</strong></td><td><strong>Phone numbers</strong></td><td><strong>Addresses</strong></td></tr><tr class="response-row response-row--is-identity">';
-
-        identityData.owners.forEach(function (owner, idx) {
-        html += "<td>";
-        owner.names.forEach(function (name, idx) {
-            html += name + "<br />";
-        });
-        html += "</td><td>";
-        owner.emails.forEach(function (email, idx) {
-            html += email.data + "<br />";
-        });
-        html += "</td><td>";
-        owner.phone_numbers.forEach(function (number, idx) {
-            html += number.data + "<br />";
-        });
-        html += "</td><td>";
-        owner.addresses.forEach(function (address, idx) {
-            html += address.data.street + "<br />";
-            html +=
-            address.data.city +
-            ", " +
-            address.data.region +
-            " " +
-            address.data.postal_code +
-            "<br />";
-        });
-        html += "</td>";
-        html += "</tr>";
-        });
-
-        $(this).html(html).slideDown();
-    });
-    });
-});
-
-$("#get-item-btn").on("click", function (e) {
-    $.get("/api/item", function (data) {
-    $("#get-item-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var html = "";
-        html +=
-        "<tr><td>Institution name</td><td>" +
-        data.institution.name +
-        "</td></tr>";
-        html +=
-        "<tr><td>Billed products</td><td>" +
-        data.item.billed_products.join(", ") +
-        "</td></tr>";
-        html +=
-        "<tr><td>Available products</td><td>" +
-        data.item.available_products.join(", ") +
-        "</td></tr>";
-
-        $(this).html(html).slideDown();
-    });
-    });
-});
 
 $("#get-transactions-btn").on("click", function (e) {
     $.get("/api/transactions", function (data) {
@@ -318,81 +221,34 @@ $("#get-transactions-btn").on("click", function (e) {
     });
 });
 
-$("#get-balance-btn").on("click", function (e) {
-    $.get("/api/balance", function (data) {
-    $("#get-balance-data").slideUp(function () {
-        if (data.error != null) {
-        displayError(this, data.error);
-        return;
-        }
-        var html =
-        "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Subtype</strong></td><td><strong>Mask</strong></td></tr>";
-        data.accounts.forEach(function (account, idx) {
-        html += "<tr>";
-        html += "<td>" + account.name + "</td>";
-        html +=
-            "<td>$" +
-            (account.balances.available != null
-            ? account.balances.available
-            : account.balances.current) +
-            "</td>";
-        html += "<td>" + account.subtype + "</td>";
-        html += "<td>" + account.mask + "</td>";
-        html += "</tr>";
-        });
-
-        $(this).html(html).slideDown();
-    });
-    });
-});
-
-// $("#get-holdings-btn").on("click", function (e) {
-//   $.get("/api/holdings", function (data) {
-//     $("#get-holdings-data").slideUp(function () {
-//       if (data.error != null) {
+// $("#get-balance-btn").on("click", function (e) {
+//     $.get("/api/balance", function (data) {
+//     $("#get-balance-data").slideUp(function () {
+//         if (data.error != null) {
 //         displayError(this, data.error);
 //         return;
-//       }
-//       // Organize by Account
-//       var holdingsData = data.holdings.holdings.sort(function (a, b) {
-//         if (a.account_id > b.account_id) return 1;
-//         return -1;
-//       });
-//       var html =
-//         '<tr class="response-row response-row--is-holdings"></tr><td><strong>Account Mask</strong></td><td><strong>Name</strong></td><td><strong>Quantity</strong></td><td><strong>Close Price</strong></td><td><strong>Value</strong></td><tr class="response-row response-row--is-holding">';
-//       holdingsData.forEach(function (h, idx) {
-//         const account = data.holdings.accounts.filter(
-//           a => a.account_id === h.account_id
-//         )[0];
-//         const security = data.holdings.securities.filter(
-//           s => s.security_id === h.security_id
-//         )[0];
-//         if (account == null) {
-//           displayError(this, {
-//             code: 500,
-//             type: "Internal",
-//             display_message: "Holding lacks a account"
-//           });
 //         }
-//         if (security == null) {
-//           displayError(this, {
-//             code: 500,
-//             type: "Internal",
-//             display_message: "Holding lacks a security"
-//           });
-//         }
+//         var html =
+//         "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Subtype</strong></td><td><strong>Mask</strong></td></tr>";
+//         data.accounts.forEach(function (account, idx) {
 //         html += "<tr>";
+//         html += "<td>" + account.name + "</td>";
+//         html +=
+//             "<td>$" +
+//             (account.balances.available != null
+//             ? account.balances.available
+//             : account.balances.current) +
+//             "</td>";
+//         html += "<td>" + account.subtype + "</td>";
 //         html += "<td>" + account.mask + "</td>";
-//         html += "<td>" + security.name + "</td>";
-//         html += "<td>" + h.quantity + "</td>";
-//         html += "<td>$" + security.close_price + "</td>";
-//         html += "<td>$" + h.quantity * security.close_price + "</td>";
 //         html += "</tr>";
-//       });
-//       $(this).html(html).slideDown();
+//         });
+
+//         $(this).html(html).slideDown();
 //     });
-//   });
+//     });
 // });
+
 
 $("#get-investment-transactions-btn").on("click", function (e) {
     $.get("/api/investment_transactions", function (data) {
@@ -416,75 +272,6 @@ $("#get-investment-transactions-btn").on("click", function (e) {
     });
     });
 });
-
-// $("#get-assets-btn").on("click", function (e) {
-//     $.get("/api/assets", function (data) {
-//     $("#get-assets-data").slideUp(function () {
-//         if (data.error != null) {
-//         displayError(this, data.error);
-//         return;
-//         }
-//         var reportData = data.json;
-//         var html = `
-//     <tr>
-//     <td><strong>Account</strong></td>
-//     <td><strong>Balance</strong></td>
-//     <td><strong># Transactions</strong></td>
-//     <td><strong># Days Available</strong></td>
-//     </tr>`;
-//         reportData.items.forEach(function (item, itemIdx) {
-//         item.accounts.forEach(function (account, accountIdx) {
-//             html += "<tr>";
-//             html += "<td>" + account.name + "</td>";
-//             html += "<td>$" + account.balances.current + "</td>";
-//             html += "<td>" + account.transactions.length + "</td>";
-//             html += "<td>" + account.days_available + "</td>";
-//             html += "</tr>";
-//         });
-//         });
-
-//         $("#download-assets-pdf-btn")
-//         .attr("href", `data:application/pdf;base64,${data.pdf}`)
-//         .attr("download", "Asset Report.pdf")
-//         .show();
-
-//         $(this).html(html).slideDown();
-//     });
-//     });
-// });
-
-// This functionality is only relevant for the UK Payment Initiation product.
-// $("#get-payment-btn").on("click", function (e) {
-//     $.get("/api/payment", function (data) {
-//     $("#get-payment-data").slideUp(function () {
-//         if (data.error != null) {
-//         displayError(this, data.error);
-//         return;
-//         }
-//         var paymentData = data.payment;
-//         var html = "";
-//         html +=
-//         "<tr><td>Payment ID</td><td>" +
-//         paymentData.payment_id +
-//         "</td></tr>";
-//         html +=
-//         "<tr><td>Amount</td><td>" +
-//         (paymentData.amount.currency + " " + paymentData.amount.value) +
-//         "</td></tr>";
-//         html +=
-//         "<tr><td>Status</td><td>" + paymentData.status + "</td></tr>";
-//         html +=
-//         "<tr><td>Last Status Update</td><td>" +
-//         paymentData.last_status_update +
-//         "</td></tr>";
-//         html +=
-//         "<tr><td>Recipient ID</td><td>" +
-//         paymentData.recipient_id +
-//         "</td></tr>";
-//         $(this).html(html).slideDown();
-//     });
-//     });
-// });
 
 }
 $.post("/api/info", {}, function (result) {
