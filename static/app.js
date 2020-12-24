@@ -310,17 +310,12 @@ $('body').on('click', '#apply-categories', function(e) {
     const matchingIDs = {}
     let transactions = document.querySelectorAll(".trans-selector")  
     let length = transactions.length
-    let formIDs = []
-    
-    for (let i=0; i< length; i++) {
-        formIDs.push(transactions[i].id)
-    }
-
 
     for (let i =0; i< length; i++) {
-        let tempData = document.getElementById(formIDs[i])
+        let tempData = document.getElementById(transactions[i].id)
         if (tempData.value != 'null') {
-            matchingIDs[tempData.dataset.transid] = tempData.value
+            matchingIDs[tempData.dataset.transid] = tempData.value;
+            tempData.parentElement.parentElement.parentElement.remove();
         }
     }
 
@@ -330,21 +325,7 @@ $('body').on('click', '#apply-categories', function(e) {
        data: JSON.stringify(matchingIDs),
        dataType: 'json',
        url: '/apply-categories',
-       success: function (e) {
-           console.log(e);
-       },
-       error: function(error) {
-            console.log(error);
-       }
     });
-
-    // remove element from DOM
-    for (let i =0; i< length; i++) {
-        let tempData = document.getElementById(formIDs[i])
-        if (tempData && tempData.value != 'null') {
-            tempData.parentElement.parentElement.parentElement.remove();
-        }
-    }
 
 });
 
