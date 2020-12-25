@@ -443,7 +443,7 @@ def get_transactions():
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
   
-  pretty_print_response(transactions_response)
+  # pretty_print_response(transactions_response)
   return jsonify(transactions_response)
 
 #  TODO: send json back to js file
