@@ -28,7 +28,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "thisIsTopSecret!")
 # CORS(app)
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-# FIXME: hide data
+
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
 PLAID_SECRET = os.getenv('PLAID_SECRET')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
@@ -119,7 +119,7 @@ def signup():
             user_id = User.query.filter_by(username=username).first()
             session['user-id'] = user_id.username
 
-            # TODO: Insert universal categories into UserCategories model
+            # Insert universal categories into UserCategories model
             categories = ['Utilities', 'Eating Out', 'Entertainment', 'Groceries', 'Travel', 'Insurance', 'Rent/Mortgage', 'Monthly Subscriptions', 'Vehicle', 'Income']
 
             for cat in categories: 
@@ -158,7 +158,7 @@ def login_page():
   return render_template('login.html', form=form)
 
 
-# TODO: Render transaction table
+# Show only uncategorized transactions
 @app.route('/transactions', methods=["GET", "POST"])
 def signed_in_user():
   form = NewCategory()
@@ -184,11 +184,8 @@ def signed_in_user():
     return redirect('/transactions')
 
   else:
- 
-    # Seems to be working!!!!!!!!!!!!!!!!!!
     transactions = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id == None).all()
 
-    # This works (don't touch)
     user_categories = UserCategories.query.filter_by(user_id = session[CURR_USER_KEY]).join(Category, UserCategories.category).order_by(Category.name).all()
     
     dollar_formatted = [("{:.2f}".format(i.transaction.amount)) for i in transactions]
@@ -196,8 +193,7 @@ def signed_in_user():
 
     return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted, categorized='False')
 
-
-############# MAY NOT NEED THIS ROUTE
+# Show all transactions (inc. categorized transactions)
 @app.route('/allTransactions', methods=["GET", "POST"])
 def signed_in_user_categorized():
   form = NewCategory()
@@ -231,37 +227,6 @@ def signed_in_user_categorized():
 
     return render_template('trans-details.html', form=form, user_categories = user_categories, transactions=transactions, dollar_formatted = dollar_formatted, categorized='True')
 
-
-# @app.route('/settings', methods=['GET', 'POST'])
-# def settings():
-#   form = EditUserForm() 
-#   user = User.query.get(session[CURR_USER_KEY])
-
-#   if form.validate_on_submit():
-#     try:
-#       user.username = form.username.data
-#       user.email = form.email.data
-#       if form.password.data:
-#         user.password = form.password.data
-
-#       db.session.commit()
-
-#       return redirect('/transactions')
-    
-#     except IntegrityError:
-#       flash("Username already taken", 'danger')
-#       return render_template('/settings.html')
-
-#   else:
-#     form.username.data = user.username
-#     form.email.data = user.email
-#     form.password.data = user.password
-
-#     return render_template('settings.html', form=form)
-
-
-
-
 @app.route('/new-user')
 def index():
   return render_template('index.html')
@@ -273,7 +238,6 @@ def oauth_response():
     'oauth-response.html',
   )
 
-# TODO: store this in session?
 # We store the access_token in memory - in production, store it in a secure
 # persistent data store.
 access_token = None
@@ -381,17 +345,6 @@ def get_access_token():
   item_id = exchange_response['item_id']
   return jsonify(exchange_response)
 
-# Retrieve ACH or ETF account numbers for an Item
-# https://plaid.com/docs/#auth
-@app.route('/api/auth', methods=['GET'])
-def get_auth():
-  try:
-    auth_response = client.Auth.get(access_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(auth_response)
-  return jsonify(auth_response)
-
 # Retrieve Transactions for an Item
 # https://plaid.com/docs/#transactions
 @app.route('/api/transactions', methods=['GET'])
@@ -419,7 +372,6 @@ def get_transactions():
   try:
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
 
-    # TODO:
     transactions = transactions_response['transactions']
 
     for tran in transactions:
@@ -447,7 +399,7 @@ def get_transactions():
   # pretty_print_response(transactions_response)
   return jsonify(transactions_response)
 
-#  TODO: send json back to js file
+#  send json back to js file
 @app.route('/api/transaction-ids')
 def get_transaction_ids():
   user = User.query.get(session[CURR_USER_KEY])
@@ -456,51 +408,8 @@ def get_transaction_ids():
   
   return jsonify(trans_list)
 
-# Retrieve Identity data for an Item
-# https://plaid.com/docs/#identity
-@app.route('/api/identity', methods=['GET'])
-def get_identity():
-  try:
-    identity_response = client.Identity.get(access_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(identity_response)
-  return jsonify({'error': None, 'identity': identity_response['accounts']})
 
-# Retrieve real-time balance data for each of an Item's accounts
-# https://plaid.com/docs/#balance
-@app.route('/api/balance', methods=['GET'])
-def get_balance():
-  try:
-    balance_response = client.Accounts.balance.get(access_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(balance_response)
-  return jsonify(balance_response)
-
-# Retrieve an Item's accounts
-# https://plaid.com/docs/#accounts
-@app.route('/api/accounts', methods=['GET'])
-def get_accounts():
-  try:
-    accounts_response = client.Accounts.get(access_token)
-  except plaid.errors.PlaidError as e:
-    return jsonify({'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type } })
-  pretty_print_response(accounts_response)
-  return jsonify(accounts_response)
-
-# Retrieve high-level information about an Item
-# https://plaid.com/docs/#retrieve-item
-@app.route('/api/item', methods=['GET'])
-def item():
-  global access_token
-  item_response = client.Item.get(access_token)
-  institution_response = client.Institutions.get_by_id(item_response['item']['institution_id'])
-  pretty_print_response(item_response)
-  pretty_print_response(institution_response)
-  return jsonify({'error': None, 'item': item_response['item'], 'institution': institution_response['institution']})
-
-# TODO: get json from JS and update DB
+# Get json from JS and update DB
 @app.route('/apply-categories', methods=["POST"])
 def apply_categories():
   for i,j in request.json.items():
@@ -516,7 +425,7 @@ def apply_categories():
 def redirect_user():
   return redirect('/expense-report-year')
 
-# TODO: allow for year/month/all-time functionality
+# Allow for year/month/all-time functionality
 @app.route('/expense-report-<date>', methods=["GET","POST"])
 def get_report(date):
   if date == 'year':
@@ -529,7 +438,6 @@ def get_report(date):
 
   not_null_transaction = UserTransaction.query.filter_by(user_id = session[CURR_USER_KEY]).join(Transactions, UserTransaction.transaction).filter(Transactions.category_id != None).filter(Transactions.date > date).all()
   
-    
   totals = {}
   for trans in not_null_transaction:
     if trans.transaction.category.name not in totals.keys():

@@ -55,7 +55,7 @@ function render_page($, page_info) {
       $("#link-btn").attr("disabled", false);
       $(".loading-indicator").hide();
     });
-    // TODO: import transactions goes somewhere here
+  
   } else {
     var handler = null;
     $.post("/api/create_link_token", {}, function (data) {
@@ -113,69 +113,6 @@ function render_page($, page_info) {
     }
   });
 
-  // $("#get-auth-btn").on("click", function (e) {
-  //     $.get("/api/auth", function (data) {
-  //     $("#get-auth-data").slideUp(function () {
-  //         if (data.error != null) {
-  //         displayError(this, data.error);
-  //         return;
-  //         }
-  //         var isAch = data.numbers.ach.length > 0;
-  //         var routingLabel = isAch
-  //         ? "Routing #"
-  //         : "Institution and Branch #";
-
-  //         var html =
-  //         "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Account #</strong></td><td><strong>" +
-  //         routingLabel +
-  //         "</strong></td></tr>";
-  //         if (isAch) {
-  //         data.numbers.ach.forEach(function (achNumbers, idx) {
-  //             // Find the account associated with this set of account and routing numbers
-  //             var account = data.accounts.filter(function (a) {
-  //             return a.account_id === achNumbers.account_id;
-  //             })[0];
-  //             html += "<tr>";
-  //             html += "<td>" + account.name + "</td>";
-  //             html +=
-  //             "<td>$" +
-  //             (account.balances.available != null
-  //                 ? account.balances.available
-  //                 : account.balances.current) +
-  //             "</td>";
-  //             html += "<td>" + achNumbers.account + "</td>";
-  //             html += "<td>" + achNumbers.routing + "</td>";
-  //             html += "</tr>";
-  //         });
-  //         } else {
-  //         data.numbers.eft.forEach(function (eftNumber, idx) {
-  //             // Find the account associated with this set of account and routing numbers
-  //             var account = data.accounts.filter(function (a) {
-  //             return a.account_id === eftNumber.account_id;
-  //             })[0];
-  //             html += "<tr>";
-  //             html += "<td>" + account.name + "</td>";
-  //             html +=
-  //             "<td>$" +
-  //             (account.balances.available != null
-  //                 ? account.balances.available
-  //                 : account.balances.current) +
-  //             "</td>";
-  //             html += "<td>" + eftNumber.account + "</td>";
-  //             html +=
-  //             "<td>" +
-  //             eftNumber.institution +
-  //             " " +
-  //             eftNumber.branch +
-  //             "</td>";
-  //             html += "</tr>";
-  //         });
-  //         }
-  //         $(this).html(html).slideDown();
-  //     });
-  //     });
-  // });
-
   $("#get-transactions-btn").on("click", function (e) {
     $.get("/api/transactions", function (data) {
       if (data.error != null && data.error.error_code != null) {
@@ -208,62 +145,11 @@ function render_page($, page_info) {
         return;
       }
 
-      //  TODO:
       window.location.href = "/transactions";
     });
   });
 
-  // $("#get-balance-btn").on("click", function (e) {
-  //     $.get("/api/balance", function (data) {
-  //     $("#get-balance-data").slideUp(function () {
-  //         if (data.error != null) {
-  //         displayError(this, data.error);
-  //         return;
-  //         }
-  //         var html =
-  //         "<tr><td><strong>Name</strong></td><td><strong>Balance</strong></td><td><strong>Subtype</strong></td><td><strong>Mask</strong></td></tr>";
-  //         data.accounts.forEach(function (account, idx) {
-  //         html += "<tr>";
-  //         html += "<td>" + account.name + "</td>";
-  //         html +=
-  //             "<td>$" +
-  //             (account.balances.available != null
-  //             ? account.balances.available
-  //             : account.balances.current) +
-  //             "</td>";
-  //         html += "<td>" + account.subtype + "</td>";
-  //         html += "<td>" + account.mask + "</td>";
-  //         html += "</tr>";
-  //         });
-
-  //         $(this).html(html).slideDown();
-  //     });
-  //     });
-  // });
-
-  // TODO: Clean up this code
-  $("#get-investment-transactions-btn").on("click", function (e) {
-    $.get("/api/investment_transactions", function (data) {
-      $("#get-investment-transactions-data").slideUp(function () {
-        if (data.error != null) {
-          displayError(this, data.error);
-          return;
-        }
-        let investmentTransactionData =
-          data.investment_transactions.investment_transactions;
-        var html =
-          '<tr class="response-row response-row--is-investment-transactions"></tr><td><strong>Name</strong></td><td><strong>Amount</strong></td><td><strong>Date</strong></td><tr class="response-row response-row--is-investment-transaction">';
-        investmentTransactionData.forEach(function (invTxn, idx) {
-          html += "<tr>";
-          html += "<td>" + invTxn.name + "</td>";
-          html += "<td>$" + invTxn.amount + "</td>";
-          html += "<td>" + invTxn.date + "</td>";
-          html += "</tr>";
-        });
-        $(this).html(html).slideDown();
-      });
-    });
-  });
+ 
 }
 $.post("/api/info", {}, function (result) {
   render_page(jQuery, result);
@@ -288,8 +174,7 @@ function displayError(element, error) {
   $(element).html(html).slideDown();
 }
 
-// TODO:
-
+// Functionality for 'Apply Categories' button
 $("body").on("click", "#apply-categories", function (e) {
   const matchingIDs = {};
   let transactions = document.querySelectorAll(".trans-selector");
@@ -322,7 +207,7 @@ $("body").on("click", "#apply-categories", function (e) {
     });
 });
 
-// TODO: if categorized click, show categorized transactions
+// if categorized click, show categorized transactions
 $("#categorized").on("click", function (e) {
   e.preventDefault();
   let checked = document.getElementById("categorized");
@@ -334,7 +219,7 @@ $("#categorized").on("click", function (e) {
   }
 });
 
-// TODO: handle filter-by on expense-report
+// handle filter-by on expense-report
 $("#date-sort").submit(function (e) {
   e.preventDefault();
   let value = document.getElementById("selected-value").value;
